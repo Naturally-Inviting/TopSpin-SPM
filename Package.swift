@@ -11,11 +11,17 @@ let package = Package(
         .macOS(.v10_15)
     ],
     products: [
+        .library(name: "AppFeature", targets: ["AppFeature"]),
+        .library(name: "CloudKitClient", targets: ["CloudKitClient"]),
         .library(name: "CoreDataModel", targets: ["CoreDataModel"]),
         .library(name: "CoreDataStack", targets: ["CoreDataStack"]),
+        .library(name: "DefaultSettingClient", targets: ["DefaultSettingClient"]),
         .library(name: "MatchHistoryListFeature", targets: ["MatchHistoryListFeature"]),
         .library(name: "MatchClient", targets: ["MatchClient"]),
         .library(name: "Models", targets: ["Models"]),
+        .library(name: "UIApplicationClient", targets: ["UIApplicationClient"]),
+        .library(name: "UIUserInterfaceStyleClient", targets: ["UIUserInterfaceStyleClient"]),
+        .library(name: "UserDefaultsClient", targets: ["UserDefaultsClient"]),
         .library(name: "World", targets: ["World"]),
     ],
     dependencies: [
@@ -24,8 +30,8 @@ let package = Package(
             from: "0.28.1"
         ),
         .package(
-            url: "https://github.com/dmytro-anokhin/core-data-model-description",
-            from: "0.0.11"
+            url: "https://github.com/willbrandin/core-data-model-description",
+            from: "0.0.12"
         ),
         .package(
             name: "SnapshotTesting", url: "https://github.com/pointfreeco/swift-snapshot-testing",
@@ -33,6 +39,23 @@ let package = Package(
         )
     ],
     targets: [
+        .target(
+            name: "AppFeature",
+            dependencies: [
+                "MatchHistoryListFeature",
+                "Models",
+                "World",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "CoreDataModelDescription", package: "core-data-model-description"),
+            ]
+        ),
+        .target(
+            name: "CloudKitClient",
+            dependencies: [
+                "CoreDataStack",
+                .product(name: "CoreDataModelDescription", package: "core-data-model-description")
+            ]
+        ),
         .target(
             name: "CoreDataModel",
             dependencies: [
@@ -48,6 +71,12 @@ let package = Package(
             ]
         ),
         .target(
+            name: "DefaultSettingClient",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
+        ),
+        .target(
             name: "MatchClient",
             dependencies: [
                 "CoreDataModel",
@@ -58,6 +87,7 @@ let package = Package(
         .target(
             name: "MatchHistoryListFeature",
             dependencies: [
+                "MatchClient",
                 "Models",
                 "World",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
@@ -66,6 +96,24 @@ let package = Package(
         .target(
             name: "Models",
             dependencies: []
+        ),
+        .target(
+            name: "UIApplicationClient",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
+        ),
+        .target(
+            name: "UIUserInterfaceStyleClient",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
+        ),
+        .target(
+            name: "UserDefaultsClient",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
         ),
         .target(
             name: "World",

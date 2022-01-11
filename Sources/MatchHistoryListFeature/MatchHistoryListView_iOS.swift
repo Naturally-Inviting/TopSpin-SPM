@@ -3,7 +3,7 @@ import ComposableArchitecture
 import Models
 import SwiftUI
 
-struct MatchHistoryListView: View {
+public struct MatchHistoryListView: View {
     
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.horizontalSizeClass) var horizontalSize
@@ -64,18 +64,23 @@ struct MatchHistoryListView: View {
         }
     }
     
-    var body: some View {
+    public var body: some View {
         VStack {
             if viewStore.matches.isEmpty {
-                HistoryEmptyView()
+                HistoryEmptyView(
+                    isConnected: viewStore.isWatchConnected,
+                    isWCSessionSupported: viewStore.isWCSessionSupported
+                )
             } else {
                 historyListView
             }
         }
         .navigationTitle("Match History")
+        .onAppear {
+            viewStore.send(.viewLoaded)
+        }
     }
 }
-
 
 struct MatchHistoryListView_Previews: PreviewProvider {
     
@@ -118,13 +123,13 @@ struct MatchHistoryListView_Previews: PreviewProvider {
                                 )
                             ],
                             selectedMatch: nil,
+                            isWatchConnected: true,
+                            isWCSessionSupported: true,
                             isMatchRequestInFlight: false,
                             isDeleteMatchRequestInFlight: false
                         ),
                         reducer: matchHistoryReducer,
-                        environment: MatchHistoryEnvironment(
-                            mainQueue: .main
-                        )
+                        environment: .mocked
                     )
                 )
             }
@@ -169,13 +174,13 @@ struct MatchHistoryListView_Previews: PreviewProvider {
                                 )
                             ],
                             selectedMatch: nil,
+                            isWatchConnected: false,
+                            isWCSessionSupported: true,
                             isMatchRequestInFlight: false,
                             isDeleteMatchRequestInFlight: false
                         ),
                         reducer: matchHistoryReducer,
-                        environment: MatchHistoryEnvironment(
-                            mainQueue: .main
-                        )
+                        environment: .mocked
                     )
                 )
             }

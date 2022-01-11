@@ -24,4 +24,8 @@ public extension World {
             #endif
         }
     }
+    
+    func setupContainer(_ isCloudSync: Bool) {
+        self.coreDataStack().container = CoreDataStack.setupContainer(model: topSpinModel, withSync: isCloudSync)
+    }
 }

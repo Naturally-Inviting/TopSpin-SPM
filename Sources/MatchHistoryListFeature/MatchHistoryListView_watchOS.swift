@@ -3,7 +3,7 @@ import ComposableArchitecture
 import Models
 import SwiftUI
 
-struct MatchHistoryListView: View {
+public struct MatchHistoryListView: View {
     
     let store: Store<MatchHistoryState, MatchHistoryAction>
     @ObservedObject var viewStore: ViewStore<MatchHistoryState, MatchHistoryAction>
@@ -16,16 +16,21 @@ struct MatchHistoryListView: View {
     }
     
 
-    var body: some View {
-        if viewStore.matches.isEmpty {
-            HistoryEmptyView()
-        } else {
-            List {
-                ForEach(viewStore.matches) { match in
-                    MatchHistoryItem(match: match)
+    public var body: some View {
+        VStack {
+            if viewStore.matches.isEmpty {
+                HistoryEmptyView()
+            } else {
+                List {
+                    ForEach(viewStore.matches) { match in
+                        MatchHistoryItem(match: match)
+                    }
                 }
             }
-            .navigationTitle("Match History")
+        }
+        .navigationTitle("Match History")
+        .onAppear {
+            viewStore.send(.viewLoaded)
         }
     }
 }
@@ -49,9 +54,9 @@ struct MatchHistoryListView_Previews: PreviewProvider {
                                         startDate: .distantPast,
                                         endDate: .init(),
                                         activeCalories: 210,
-                                        averageHeartRate: 120,
-                                        maxHeartRate: 132,
-                                        minHeartRate: 110
+                                        heartRateAverage: 120,
+                                        heartRateMax: 132,
+                                        heartRateMin: 110
                                     )
                                 ),
                                 .init(
@@ -64,17 +69,20 @@ struct MatchHistoryListView_Previews: PreviewProvider {
                                         startDate: .distantPast,
                                         endDate: .init(),
                                         activeCalories: 210,
-                                        averageHeartRate: 120,
-                                        maxHeartRate: 132,
-                                        minHeartRate: 110
+                                        heartRateAverage: 120,
+                                        heartRateMax: 132,
+                                        heartRateMin: 110
                                     )
                                 )
-                            ]
+                            ],
+                            selectedMatch: nil,
+                            isWatchConnected: true,
+                            isWCSessionSupported: true,
+                            isMatchRequestInFlight: false,
+                            isDeleteMatchRequestInFlight: false
                         ),
                         reducer: matchHistoryReducer,
-                        environment: MatchHistoryEnvironment(
-                            mainQueue: .main
-                        )
+                        environment: .mocked
                     )
                 )
             }
@@ -84,43 +92,15 @@ struct MatchHistoryListView_Previews: PreviewProvider {
                 MatchHistoryListView(
                     store: Store(
                         initialState: MatchHistoryState(
-                            matches: [
-                                .init(
-                                    id: .init(),
-                                    date: .init(),
-                                    playerScore: 11,
-                                    opponentScore: 8,
-                                    workout: .init(
-                                        id: .init(),
-                                        startDate: .distantPast,
-                                        endDate: .init(),
-                                        activeCalories: 210,
-                                        averageHeartRate: 120,
-                                        maxHeartRate: 132,
-                                        minHeartRate: 110
-                                    )
-                                ),
-                                .init(
-                                    id: .init(),
-                                    date: .init(),
-                                    playerScore: 21,
-                                    opponentScore: 18,
-                                    workout: .init(
-                                        id: .init(),
-                                        startDate: .distantPast,
-                                        endDate: .init(),
-                                        activeCalories: 210,
-                                        averageHeartRate: 120,
-                                        maxHeartRate: 132,
-                                        minHeartRate: 110
-                                    )
-                                )
-                            ]
+                            matches: [],
+                            selectedMatch: nil,
+                            isWatchConnected: true,
+                            isWCSessionSupported: true,
+                            isMatchRequestInFlight: false,
+                            isDeleteMatchRequestInFlight: false
                         ),
                         reducer: matchHistoryReducer,
-                        environment: MatchHistoryEnvironment(
-                            mainQueue: .main
-                        )
+                        environment: .mocked
                     )
                 )
             }

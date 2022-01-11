@@ -2,14 +2,41 @@
 import SwiftUI
 import WatchConnectivity
 
-struct HistoryEmptyView: View {
-    
+public struct EmptyViewButtonStyle: ButtonStyle {
     @Environment(\.colorScheme) var colorScheme
     
-    var isConnected: Bool {
-        return WCSession.default.isWatchAppInstalled
+    var color: Color
+    
+    public init(color: Color = .blue) {
+        self.color = color
     }
     
+    public func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
+            .font(.system(.title3, design: .default).bold())
+            .foregroundColor(self.color)
+            .frame(maxWidth: .infinity)
+            .frame(height: 48)
+            .background(Color.clear)
+            .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(self.color, lineWidth: 1)
+            )
+            .padding()
+            .padding(.horizontal)
+    }
+}
+
+struct HistoryEmptyView: View {
+    
+    @Environment(\.colorScheme) private var colorScheme
+    
+    var isConnected: Bool
+    var isWCSessionSupported: Bool
+    var onOpenSettingsTapped: () -> Void = {}
+
     var backgroundColor: Color {
         return colorScheme == .dark ? Color(UIColor.systemBackground) : Color(UIColor.secondarySystemBackground)
     }
@@ -32,41 +59,21 @@ struct HistoryEmptyView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
                 
-                if !isConnected && WCSession.isSupported() {
-                    if colorScheme == .light {
-                        Button(action: openWatchAction) {
-                            Text("Open Watch Settings")
-                                .bold()
-                                .padding()
-                        }
-                    } else {
-                        Button(action: openWatchAction) {
-                            Text("Open Watch Settings")
-                                .bold()
-                                .foregroundColor(.accentColor)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 48)
-                                .background(Color.clear)
-                                .contentShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                                .cornerRadius(8)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.accentColor, lineWidth: 1)
-                                )
-                                .padding()
-                                .padding(.horizontal)
-                        }
+                VStack(spacing: 0) {
+                    if !isConnected && isWCSessionSupported {
+                        Button("Open Watch Settings", action: onOpenSettingsTapped)
+                            .buttonStyle(EmptyViewButtonStyle())
                     }
+                    
+//                    Button("Add Manually", action: {})
+//                        .font(.headline.bold())
+//                        .padding()
+//                        .foregroundColor(.secondary)
                 }
+                
                 Spacer()
                 Spacer()
             }
-        }
-    }
-    
-    func openWatchAction() {
-        UIApplication.shared.open(URL(string: "itms-watchs://com.willBrandin.dev")!) { (didOpen) in
-            print(didOpen ? "Did open url" : "FAILED TO OPEN")
         }
     }
 }
@@ -74,8 +81,8 @@ struct HistoryEmptyView: View {
 struct HistoryEmptyView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            HistoryEmptyView()
-            HistoryEmptyView()
+            HistoryEmptyView(isConnected: false, isWCSessionSupported: true)
+            HistoryEmptyView(isConnected: false, isWCSessionSupported: true)
                 .preferredColorScheme(.dark)
         }
     }
