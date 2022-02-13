@@ -2,6 +2,8 @@ import ComposableArchitecture
 import Foundation
 import MatchClient
 import Models
+// TODO: - Remove
+import WatchConnectivity
 
 public typealias MatchHistoryReducer = Reducer<MatchHistoryState, MatchHistoryAction, MatchHistoryEnvironment>
 
@@ -9,14 +11,14 @@ public struct MatchHistoryState: Equatable {
     public init(
         matches: IdentifiedArrayOf<Match> = [],
         selectedMatch: Identified<Match.ID, Match>? = nil,
-        isWatchConnected: Bool = false,
+        isWatchAppInstalled: Bool = false,
         isWCSessionSupported: Bool = false,
         isMatchRequestInFlight: Bool = false,
         isDeleteMatchRequestInFlight: Bool = false
     ) {
         self.matches = matches
         self.selectedMatch =  selectedMatch
-        self.isWatchConnected = isWatchConnected
+        self.isWatchAppInstalled = isWatchAppInstalled
         self.isWCSessionSupported = isWCSessionSupported
         self.isMatchRequestInFlight = isMatchRequestInFlight
         self.isDeleteMatchRequestInFlight = isDeleteMatchRequestInFlight
@@ -24,7 +26,7 @@ public struct MatchHistoryState: Equatable {
     
     public var matches: IdentifiedArrayOf<Match>
     public var selectedMatch: Identified<Match.ID, Match>?
-    public var isWatchConnected: Bool
+    public var isWatchAppInstalled: Bool
     public var isWCSessionSupported: Bool
     public var isMatchRequestInFlight: Bool
     public var isDeleteMatchRequestInFlight: Bool

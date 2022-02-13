@@ -7,7 +7,7 @@ struct TopSpinApp: App {
     let store = Store(
         initialState: AppCoreState(),
         reducer: appCoreReducer.debug(),
-        environment: AppCoreEnvironment(mainQueue: .main, matchClient: .live)
+        environment: AppCoreEnvironment(mainQueue: .main, matchClient: .live, watchConnectivityClient: .live)
     )
     
     lazy var viewStore = ViewStore(

@@ -22,6 +22,7 @@ let package = Package(
         .library(name: "UIApplicationClient", targets: ["UIApplicationClient"]),
         .library(name: "UIUserInterfaceStyleClient", targets: ["UIUserInterfaceStyleClient"]),
         .library(name: "UserDefaultsClient", targets: ["UserDefaultsClient"]),
+        .library(name: "WatchConnectivityClient", targets: ["WatchConnectivityClient"]),
         .library(name: "World", targets: ["World"]),
     ],
     dependencies: [
@@ -44,6 +45,7 @@ let package = Package(
             dependencies: [
                 "MatchHistoryListFeature",
                 "Models",
+                "WatchConnectivityClient",
                 "World",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "CoreDataModelDescription", package: "core-data-model-description"),
@@ -111,6 +113,12 @@ let package = Package(
         ),
         .target(
             name: "UserDefaultsClient",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
+        ),
+        .target(
+            name: "WatchConnectivityClient",
             dependencies: [
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ]

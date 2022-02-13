@@ -68,7 +68,7 @@ public struct MatchHistoryListView: View {
         VStack {
             if viewStore.matches.isEmpty {
                 HistoryEmptyView(
-                    isConnected: viewStore.isWatchConnected,
+                    isConnected: viewStore.isWatchAppInstalled,
                     isWCSessionSupported: viewStore.isWCSessionSupported
                 )
             } else {
@@ -123,7 +123,7 @@ struct MatchHistoryListView_Previews: PreviewProvider {
                                 )
                             ],
                             selectedMatch: nil,
-                            isWatchConnected: true,
+                            isWatchAppInstalled: true,
                             isWCSessionSupported: true,
                             isMatchRequestInFlight: false,
                             isDeleteMatchRequestInFlight: false
@@ -174,7 +174,7 @@ struct MatchHistoryListView_Previews: PreviewProvider {
                                 )
                             ],
                             selectedMatch: nil,
-                            isWatchConnected: false,
+                            isWatchAppInstalled: false,
                             isWCSessionSupported: true,
                             isMatchRequestInFlight: false,
                             isDeleteMatchRequestInFlight: false

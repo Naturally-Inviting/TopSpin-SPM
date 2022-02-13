@@ -1,9 +1,18 @@
+import Combine
 import ComposableArchitecture
 import Foundation
 import MatchClient
 import MatchHistoryListFeature
+import SwiftUI
+
+import WatchConnectivityClient
 
 public typealias AppCoreReducer = Reducer<AppCoreState, AppCoreAction, AppCoreEnvironment>
+
+public struct WatchConnectivityState: Equatable {
+    public var isWatchAppInstalled = false
+    public var isWCSessionSupported = false
+}
 
 public struct AppCoreState: Equatable {
     public init(
@@ -25,26 +34,45 @@ public struct AppCoreState: Equatable {
 }
 
 public enum AppCoreAction: BindableAction {
-    case matchHistory(MatchHistoryAction)
     case binding(BindingAction<AppCoreState>)
+    case didChangeScenePhase(scenePhase: ScenePhase)
+    case matchHistory(MatchHistoryAction)
+    
+    case watchConnectivity(Result<WatchConnectivityClient.Action, WatchConnectivityClient.Failure>)
 }
 
 public struct AppCoreEnvironment {
     public init(
         mainQueue: AnySchedulerOf<DispatchQueue>,
-        matchClient: MatchClient
+        matchClient: MatchClient,
+        watchConnectivityClient: WatchConnectivityClient
     ) {
         self.mainQueue = mainQueue
         self.matchClient = matchClient
+        self.watchConnectivityClient = watchConnectivityClient
     }
     
     var mainQueue: AnySchedulerOf<DispatchQueue>
     var matchClient: MatchClient
+    var watchConnectivityClient: WatchConnectivityClient
 }
 
 private let reducer = AppCoreReducer
 { state, action, environment in
+    struct WatchConnectivityId: Hashable {}
+    
     switch action {
+//    case let .watchConnectivity(.success(.activationDidComplete(state, error))):
+//        print(state)
+//        print(error)
+//        
+//        return .none
+        
+    case .didChangeScenePhase(scenePhase: .active):
+        
+        return environment.watchConnectivityClient.activate(WatchConnectivityId())
+            .catchToEffect(AppCoreAction.watchConnectivity)
+        
     default:
         return .none
     }

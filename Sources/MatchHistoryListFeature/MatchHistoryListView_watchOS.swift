@@ -76,7 +76,7 @@ struct MatchHistoryListView_Previews: PreviewProvider {
                                 )
                             ],
                             selectedMatch: nil,
-                            isWatchConnected: true,
+                            isWatchAppInstalled: true,
                             isWCSessionSupported: true,
                             isMatchRequestInFlight: false,
                             isDeleteMatchRequestInFlight: false
@@ -94,7 +94,7 @@ struct MatchHistoryListView_Previews: PreviewProvider {
                         initialState: MatchHistoryState(
                             matches: [],
                             selectedMatch: nil,
-                            isWatchConnected: true,
+                            isWatchAppInstalled: true,
                             isWCSessionSupported: true,
                             isMatchRequestInFlight: false,
                             isDeleteMatchRequestInFlight: false

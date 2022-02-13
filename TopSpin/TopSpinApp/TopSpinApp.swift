@@ -2,11 +2,13 @@ import AppFeature
 import ComposableArchitecture
 import SwiftUI
 
+//private(set) var globalViewStore: ViewStore<AppCoreState, AppCoreAction>!
+
 final class AppDelegate: NSObject, UIApplicationDelegate {
     let store = Store(
         initialState: AppCoreState(),
         reducer: appCoreReducer.debug(),
-        environment: AppCoreEnvironment(mainQueue: .main, matchClient: .live)
+        environment: AppCoreEnvironment(mainQueue: .main, matchClient: .live, watchConnectivityClient: .live)
     )
     
     lazy var viewStore = ViewStore(
@@ -34,6 +36,7 @@ struct TopSpinApp: App {
         WindowGroup {
             AppCoreView(store: appDelegate.store)
                 .onChange(of: scenePhase) { newPhase in
+                    self.appDelegate.viewStore.send(.didChangeScenePhase(scenePhase: newPhase))
                 }
         }
     }
