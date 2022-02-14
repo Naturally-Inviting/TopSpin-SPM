@@ -11,6 +11,7 @@ let package = Package(
         .macOS(.v10_15)
     ],
     products: [
+        .library(name: "AddMatchFeature", targets: ["AddMatchFeature"]),
         .library(name: "AppFeature", targets: ["AppFeature"]),
         .library(name: "CloudKitClient", targets: ["CloudKitClient"]),
         .library(name: "CoreDataModel", targets: ["CoreDataModel"]),
@@ -40,6 +41,17 @@ let package = Package(
         )
     ],
     targets: [
+        .target(
+            name: "AddMatchFeature",
+            dependencies: [
+                "MatchClient",
+                "Models",
+                "WatchConnectivityClient",
+                "World",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "CoreDataModelDescription", package: "core-data-model-description"),
+            ]
+        ),
         .target(
             name: "AppFeature",
             dependencies: [
@@ -89,6 +101,7 @@ let package = Package(
         .target(
             name: "MatchHistoryListFeature",
             dependencies: [
+                "AddMatchFeature",
                 "MatchClient",
                 "Models",
                 "World",

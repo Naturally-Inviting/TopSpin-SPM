@@ -12,7 +12,7 @@ fileprivate let matchEntity: CoreDataEntityDescription = .entity(
         .attribute(name: "opponentScore", type: .integer16AttributeType, isOptional: true)
     ],
     relationships: [
-        .relationship(name: "workout", destination: "WorkoutMO", toMany: false)
+        .relationship(name: "workout", destination: "WorkoutMO", toMany: false, inverse: "match")
     ]
 )
 
@@ -41,6 +41,9 @@ fileprivate let workoutEntity: CoreDataEntityDescription = .entity(
         .attribute(name: "heartRateAverage", type: .integer16AttributeType, isOptional: true),
         .attribute(name: "heartRateMax", type: .integer16AttributeType, isOptional: true),
         .attribute(name: "heartRateMin", type: .integer16AttributeType, isOptional: true)
+    ],
+    relationships: [
+        .relationship(name: "match", destination: "MatchMO", toMany: false, inverse: "workout")
     ]
 )
 

@@ -1,9 +1,8 @@
+import AddMatchFeature
 import ComposableArchitecture
 import Foundation
 import MatchClient
 import Models
-// TODO: - Remove
-import WatchConnectivity
 
 public typealias MatchHistoryReducer = Reducer<MatchHistoryState, MatchHistoryAction, MatchHistoryEnvironment>
 
@@ -14,7 +13,9 @@ public struct MatchHistoryState: Equatable {
         isWatchAppInstalled: Bool = false,
         isWCSessionSupported: Bool = false,
         isMatchRequestInFlight: Bool = false,
-        isDeleteMatchRequestInFlight: Bool = false
+        isDeleteMatchRequestInFlight: Bool = false,
+        addMatchState: AddMatchState = .init(),
+        isAddMatchNavigationActive: Bool = false
     ) {
         self.matches = matches
         self.selectedMatch =  selectedMatch
@@ -22,6 +23,8 @@ public struct MatchHistoryState: Equatable {
         self.isWCSessionSupported = isWCSessionSupported
         self.isMatchRequestInFlight = isMatchRequestInFlight
         self.isDeleteMatchRequestInFlight = isDeleteMatchRequestInFlight
+        self.addMatchState = addMatchState
+        self.isAddMatchNavigationActive = isAddMatchNavigationActive
     }
     
     public var matches: IdentifiedArrayOf<Match>
@@ -30,14 +33,18 @@ public struct MatchHistoryState: Equatable {
     public var isWCSessionSupported: Bool
     public var isMatchRequestInFlight: Bool
     public var isDeleteMatchRequestInFlight: Bool
+    public var addMatchState: AddMatchState
+    @BindableState public var isAddMatchNavigationActive: Bool = false
 }
 
-public enum MatchHistoryAction: Equatable {
+public enum MatchHistoryAction: Equatable, BindableAction {
+    case binding(BindingAction<MatchHistoryState>)
     case deleteButtonTapped(Match)
     case setSelectedMatch(selection: Match?)
     case viewLoaded
     case matchesResponse(Result<[Match], MatchClient.Failure>)
     case openWatchSettingsTapped
+    case addMatch(AddMatchAction)
 }
 
 public struct MatchHistoryEnvironment {
@@ -53,9 +60,26 @@ public struct MatchHistoryEnvironment {
     public var matchClient: MatchClient
 }
 
-public let matchHistoryReducer = MatchHistoryReducer
+public let matchHistoryReducer: MatchHistoryReducer =
+.combine(
+    addMatchReducer
+        .pullback(
+            state: \.addMatchState,
+            action: /MatchHistoryAction.addMatch,
+            environment: {
+                AddMatchEnvironment(
+                    mainQueue: $0.mainQueue,
+                    matchClient: $0.matchClient
+                )
+            }
+        ),
+    reducer
+)
+
+private let reducer = MatchHistoryReducer
 { state, action, environment in
     switch action {
+    
     case let .matchesResponse(.failure(error)):
         return .none
         
@@ -104,8 +128,12 @@ public let matchHistoryReducer = MatchHistoryReducer
 //            print(didOpen ? "Did open url" : "FAILED TO OPEN")
 //        }
         return .none
+        
+    default:
+        return .none
     }
 }
+.binding()
 
 extension MatchHistoryEnvironment {
     static var mocked: Self {

@@ -73,7 +73,7 @@ extension WatchConnectivityClient {
                 }
             },
             isWatchAppInstalled: { id in
-                Effect(value: true)
+                Effect(value: true) // This will always be true for the Watch.
             },
             isWCSessionSupported: {
                 Effect(value: WCSession.isSupported())

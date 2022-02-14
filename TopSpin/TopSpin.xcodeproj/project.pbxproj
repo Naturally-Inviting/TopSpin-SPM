@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CE7C5F8827BA007700C8978D /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE7C5F8727BA007700C8978D /* CloudKit.framework */; };
+		CE7C5F8B27BA00B300C8978D /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE7C5F8A27BA00B300C8978D /* CloudKit.framework */; };
 		CEE85FA3278D23A700EC374E /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = CEE85FA2278D23A700EC374E /* AppFeature */; };
 		CEE85FA9278D28C900EC374E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CEE85FA8278D28C900EC374E /* Assets.xcassets */; };
 		CEE85FAF278D28C900EC374E /* TopSpinWatch WatchKit Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = CEE85FAE278D28C900EC374E /* TopSpinWatch WatchKit Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -66,6 +68,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CE7C5F8627BA006F00C8978D /* TopSpin.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TopSpin.entitlements; sourceTree = "<group>"; };
+		CE7C5F8727BA007700C8978D /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
+		CE7C5F8927BA009F00C8978D /* TopSpinWatch WatchKit Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "TopSpinWatch WatchKit Extension.entitlements"; sourceTree = "<group>"; };
+		CE7C5F8A27BA00B300C8978D /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS8.3.sdk/System/Library/Frameworks/CloudKit.framework; sourceTree = DEVELOPER_DIR; };
+		CE7C5F8C27BA069300C8978D /* TopSpin-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "TopSpin-Info.plist"; sourceTree = "<group>"; };
 		CEE85FA6278D28C700EC374E /* TopSpinWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TopSpinWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEE85FA8278D28C900EC374E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CEE85FAE278D28C900EC374E /* TopSpinWatch WatchKit Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "TopSpinWatch WatchKit Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -89,6 +96,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CEE85FCB278D28D200EC374E /* AppFeature in Frameworks */,
+				CE7C5F8B27BA00B300C8978D /* CloudKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,6 +105,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CEE85FA3278D23A700EC374E /* AppFeature in Frameworks */,
+				CE7C5F8827BA007700C8978D /* CloudKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -106,6 +115,8 @@
 		CEE85FA1278D23A700EC374E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CE7C5F8A27BA00B300C8978D /* CloudKit.framework */,
+				CE7C5F8727BA007700C8978D /* CloudKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -121,6 +132,7 @@
 		CEE85FB2278D28C900EC374E /* TopSpinWatch WatchKit Extension */ = {
 			isa = PBXGroup;
 			children = (
+				CE7C5F8927BA009F00C8978D /* TopSpinWatch WatchKit Extension.entitlements */,
 				CEE85FB3278D28C900EC374E /* ContentView.swift */,
 				CEE85FB5278D28C900EC374E /* TopSpinApp.swift */,
 				CEE85FB7278D28C900EC374E /* ComplicationController.swift */,
@@ -142,6 +154,8 @@
 		CEFC46A12788FD010005216B = {
 			isa = PBXGroup;
 			children = (
+				CE7C5F8C27BA069300C8978D /* TopSpin-Info.plist */,
+				CE7C5F8627BA006F00C8978D /* TopSpin.entitlements */,
 				CEFC46AC2788FD010005216B /* TopSpinApp */,
 				CEFC46BB2788FD580005216B /* TopSpin */,
 				CEE85FA7278D28C700EC374E /* TopSpinWatch */,
@@ -352,6 +366,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
+				CODE_SIGN_ENTITLEMENTS = "TopSpinWatch WatchKit Extension/TopSpinWatch WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"TopSpinWatch WatchKit Extension/Preview Content\"";
@@ -360,7 +375,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "TopSpinWatch WatchKit Extension/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "TopSpinWatch WatchKit Extension";
-				INFOPLIST_KEY_CLKComplicationPrincipalClass = "$(PRODUCT_MODULE_NAME).ComplicationController";
+				INFOPLIST_KEY_CLKComplicationPrincipalClass = TopSpinWatch_WatchKit_Extension.ComplicationController;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -368,7 +383,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.willbrandin.dev.TopSpin.watchkitapp.watchkitextension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.willbrandin.dev.TopSpinSPM.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -383,6 +398,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
+				CODE_SIGN_ENTITLEMENTS = "TopSpinWatch WatchKit Extension/TopSpinWatch WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"TopSpinWatch WatchKit Extension/Preview Content\"";
@@ -391,7 +407,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "TopSpinWatch WatchKit Extension/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "TopSpinWatch WatchKit Extension";
-				INFOPLIST_KEY_CLKComplicationPrincipalClass = "$(PRODUCT_MODULE_NAME).ComplicationController";
+				INFOPLIST_KEY_CLKComplicationPrincipalClass = TopSpinWatch_WatchKit_Extension.ComplicationController;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -399,7 +415,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.willbrandin.dev.TopSpin.watchkitapp.watchkitextension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.willbrandin.dev.TopSpinSPM.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -423,9 +439,9 @@
 				IBSC_MODULE = TopSpinWatch_WatchKit_Extension;
 				INFOPLIST_KEY_CFBundleDisplayName = TopSpinWatch;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.willbrandin.dev.TopSpin;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.willbrandin.dev.TopSpinSPM;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.willbrandin.dev.TopSpin.watchkitapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.willbrandin.dev.TopSpinSPM.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -449,9 +465,9 @@
 				IBSC_MODULE = TopSpinWatch_WatchKit_Extension;
 				INFOPLIST_KEY_CFBundleDisplayName = TopSpinWatch;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.willbrandin.dev.TopSpin;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.willbrandin.dev.TopSpinSPM;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.willbrandin.dev.TopSpin.watchkitapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.willbrandin.dev.TopSpinSPM.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -583,12 +599,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = TopSpin.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"TopSpinApp/Preview Content\"";
 				DEVELOPMENT_TEAM = 2J9S2B5EZD;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "TopSpin-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -599,7 +617,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.willbrandin.dev.TopSpin;
+				PRODUCT_BUNDLE_IDENTIFIER = com.willbrandin.dev.TopSpinSPM;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -612,12 +630,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = TopSpin.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"TopSpinApp/Preview Content\"";
 				DEVELOPMENT_TEAM = 2J9S2B5EZD;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "TopSpin-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -628,7 +648,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.willbrandin.dev.TopSpin;
+				PRODUCT_BUNDLE_IDENTIFIER = com.willbrandin.dev.TopSpinSPM;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

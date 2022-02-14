@@ -11,6 +11,16 @@ public struct MatchClient {
     public var fetch: () -> Effect<[Match], MatchClient.Failure>
     public var create: (Match) -> Effect<Match, MatchClient.Failure>
     public var delete: (Match) -> Effect<Never, Never>
+    
+    public init(
+        fetch: @escaping () -> Effect<[Match], MatchClient.Failure>,
+        create: @escaping (Match) -> Effect<Match, MatchClient.Failure>,
+        delete: @escaping (Match) -> Effect<Never, Never>
+    ) {
+        self.fetch = fetch
+        self.create = create
+        self.delete = delete
+    }
 }
 
 public extension MatchClient {

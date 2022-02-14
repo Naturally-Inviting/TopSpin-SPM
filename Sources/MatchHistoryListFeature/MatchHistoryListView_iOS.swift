@@ -2,6 +2,7 @@
 import ComposableArchitecture
 import Models
 import SwiftUI
+import AddMatchFeature
 
 public struct MatchHistoryListView: View {
     
@@ -76,6 +77,23 @@ public struct MatchHistoryListView: View {
             }
         }
         .navigationTitle("Match History")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: { viewStore.send(.set(\.$isAddMatchNavigationActive, true)) }) {
+                    Image(systemName: "plus")
+                }
+            }
+        }
+        .sheet(isPresented: viewStore.binding(\.$isAddMatchNavigationActive)) {
+            NavigationView {
+                AddMatchView(
+                    store: store.scope(
+                        state: \.addMatchState,
+                        action: MatchHistoryAction.addMatch
+                    )
+                )
+            }
+        }
         .onAppear {
             viewStore.send(.viewLoaded)
         }
