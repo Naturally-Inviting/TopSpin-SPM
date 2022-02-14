@@ -13,10 +13,13 @@ let package = Package(
     products: [
         .library(name: "AddMatchFeature", targets: ["AddMatchFeature"]),
         .library(name: "AppFeature", targets: ["AppFeature"]),
+        .library(name: "AppSettingsFeature", targets: ["AppSettingsFeature"]),
         .library(name: "CloudKitClient", targets: ["CloudKitClient"]),
+        .library(name: "CombineHelpers", targets: ["CombineHelpers"]),
         .library(name: "CoreDataModel", targets: ["CoreDataModel"]),
         .library(name: "CoreDataStack", targets: ["CoreDataStack"]),
         .library(name: "DefaultSettingClient", targets: ["DefaultSettingClient"]),
+        .library(name: "FileClient", targets: ["FileClient"]),
         .library(name: "MatchHistoryListFeature", targets: ["MatchHistoryListFeature"]),
         .library(name: "MatchClient", targets: ["MatchClient"]),
         .library(name: "Models", targets: ["Models"]),
@@ -49,7 +52,6 @@ let package = Package(
                 "WatchConnectivityClient",
                 "World",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-                .product(name: "CoreDataModelDescription", package: "core-data-model-description"),
             ]
         ),
         .target(
@@ -64,9 +66,27 @@ let package = Package(
             ]
         ),
         .target(
+            name: "AppSettingsFeature",
+            dependencies: [
+                "FileClient",
+                "Models",
+                "World",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+            ],
+            resources: [
+                .process("Resources/")
+            ]
+        ),
+        .target(
             name: "CloudKitClient",
             dependencies: [
                 "CoreDataStack",
+                .product(name: "CoreDataModelDescription", package: "core-data-model-description")
+            ]
+        ),
+        .target(
+            name: "CombineHelpers",
+            dependencies: [
                 .product(name: "CoreDataModelDescription", package: "core-data-model-description")
             ]
         ),
@@ -87,6 +107,13 @@ let package = Package(
         .target(
             name: "DefaultSettingClient",
             dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
+        ),
+        .target(
+            name: "FileClient",
+            dependencies: [
+                "CombineHelpers",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ]
         ),
