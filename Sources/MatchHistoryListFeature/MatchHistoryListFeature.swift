@@ -129,6 +129,11 @@ private let reducer = MatchHistoryReducer
 //        }
         return .none
         
+    case let .addMatch(.saveMatchResponse(.success(match))):
+        state.matches.append(match)
+        state.isAddMatchNavigationActive = false
+        return .none
+        
     default:
         return .none
     }
