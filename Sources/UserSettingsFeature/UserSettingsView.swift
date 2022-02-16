@@ -162,16 +162,171 @@ public let userSettingsReducer = UserSettingsReducer
         .debounce(id: SaveDebounceId(), for: .seconds(1), scheduler: environment.mainQueue)
 }
 
-public struct AppSettingsView: View {
+public struct UserSettingsView: View {
+    let store: Store<UserSettingsState, UserSettingsAction>
+    @ObservedObject var viewStore: ViewStore<UserSettingsState, UserSettingsAction>
+    
+    public init(
+        store: Store<UserSettingsState, UserSettingsAction>
+    ) {
+        self.store = store
+        self.viewStore = ViewStore(self.store)
+    }
+    
     public var body: some View {
-        Text("hello")
+        List {
+            Section(
+                footer:
+                    Text("Syncing with iCloud will make sure your data is on all your devices.")
+            ) {
+                
+                Toggle(isOn: viewStore.binding(
+                    get: \.isSyncWithiCloudOn,
+                    send: UserSettingsAction.iCloudSyncToggled(isOn:)
+                )) {
+                    HStack {
+                        Image(systemName: "icloud")
+                            .foregroundColor(viewStore.accentColor.color)
+                        Text("iCloud Sync")
+                    }
+                }
+                
+            }
+            .textCase(nil)
+            
+            Section(
+                header:
+                    Text("Theme")
+                        .font(.title3.bold())
+                        .foregroundColor(.primary)
+                        .padding(.leading, -16)
+            ) {
+                NavigationLink(isActive: viewStore.binding(\.$isAccentColorNavigationActive).removeDuplicates()) {
+                    AccentColorPickerView(accentColor: viewStore.binding(\.$accentColor))
+                } label: {
+                    HStack {
+                        Image(systemName: "paintpalette")
+                            .foregroundColor(viewStore.accentColor.color)
+                        Text("Accent Color")
+                        Spacer()
+                        Text(viewStore.accentColor.title.capitalized)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                NavigationLink(isActive: viewStore.binding(\.$isColorSchemeNavigationActive).removeDuplicates()) {
+                    ColorSchemePickerView(colorScheme: viewStore.binding(\.$colorScheme))
+                } label: {
+                    HStack {
+                        Image(systemName: "paintbrush.pointed")
+                            .foregroundColor(viewStore.accentColor.color)
+                        Text("Theme")
+                        Spacer()
+                        Text(viewStore.colorScheme.title)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                if viewStore.supportsAlternativeIcon {
+                    NavigationLink(isActive: viewStore.binding(\.$isAppIconNavigationActive).removeDuplicates()) {
+                        AppIconPickerView(appIcon: viewStore.binding(\.$appIcon))
+                    } label: {
+                        HStack {
+                            Image(systemName: "app")
+                                .foregroundColor(viewStore.accentColor.color)
+                            Text("App Icon")
+                            Spacer()
+                        }
+                    }
+                }
+            }
+            .textCase(nil)
+            
+            Section(header:
+                Text("Support TopSpin")
+                    .font(.title3.bold())
+                    .foregroundColor(.primary)
+                    .padding(.leading, -16)
+            ) {
+                Button("Rate TopSpin on the App Store", action: { viewStore.send(.rateAppTapped) })
+                Button("Recommend TopSpin to a Friend", action: { viewStore.send(.shareAppTapped) })
+            }
+            .textCase(nil)
+            
+            Section {
+                NavigationLink("Terms of Service", destination: Text("Terms"))
+                NavigationLink("Privacy", destination: Text("Privacy"))
+            }
+            .textCase(nil)
+            
+            Section {
+                Button(action: { viewStore.send(.helpAndSupportTapped) }) {
+                    HStack {
+                        Image(systemName: "envelope")
+                            .foregroundColor(viewStore.accentColor.color)
+                        Text("Help and Support")
+                            .foregroundColor(.primary)
+                    }
+                }
+            }
+            .textCase(nil)
+            
+            #if DEBUG
+            Section(header:
+                Text("Developer Settings")
+                    .font(.title3.bold())
+                    .foregroundColor(.primary)
+                    .padding(.leading, -16)
+            ) {
+                Button(action: { viewStore.send(.clearCache) }) {
+                    HStack {
+                        Image(systemName: "trash")
+                        Text("Clear Cache")
+                    }
+                    .foregroundColor(.red)
+                }
+            }
+            .textCase(nil)
+            #endif
+        }
+        .navigationTitle("Settings")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: { viewStore.send(.didTapClose) }) {
+                    Image(systemName: "xmark")
+                }
+                .foregroundColor(viewStore.accentColor.color)
+            }
+        }
+        .onAppear {
+            viewStore.send(.onAppear)
+        }
     }
 }
 
-struct AppSettingsView_Previews: PreviewProvider {
+struct UserSettingsView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
-            AppSettingsView()
+            NavigationView {
+                UserSettingsView(
+                    store: Store(
+                        initialState: UserSettingsState(),
+                        reducer: userSettingsReducer,
+                        environment: .init(
+                            applicationClient: .noop,
+                            uiUserInterfaceStyleClient: .noop,
+                            fileClient: .noop,
+                            mainQueue: .main,
+                            userDefaults: .noop,
+                            storeKitClient: .noop,
+                            shareSheetClient: .noop,
+                            emailClient: .noop,
+                            cloudKitClient: .noop
+                        )
+                    )
+                )
+            }
+            .navigationViewStyle(StackNavigationViewStyle())
         }
     }
 }

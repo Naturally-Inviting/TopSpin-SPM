@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import SwiftUI
 import MatchHistoryListFeature
+import UserSettingsFeature
 
 #if os(iOS)
 public struct AppCoreView: View {
@@ -62,7 +63,12 @@ public struct AppCoreView: View {
                 .tag(0)
                
                 NavigationView{
-                    Text("settings view")
+                    UserSettingsView(
+                        store: store.scope(
+                            state: \.userSettingsState,
+                            action: AppCoreAction.userSettings
+                        )
+                    )
                 }
                 .tabItem {
                     Image(systemName: "square.grid.2x2.fill")

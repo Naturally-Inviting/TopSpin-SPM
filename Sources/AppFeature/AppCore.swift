@@ -1,10 +1,8 @@
 import Combine
 import ComposableArchitecture
-import Foundation
-import MatchClient
 import MatchHistoryListFeature
 import SwiftUI
-
+import UserSettingsFeature
 import WatchConnectivityClient
 
 public typealias AppCoreReducer = Reducer<AppCoreState, AppCoreAction, AppCoreEnvironment>
@@ -25,12 +23,14 @@ public struct WatchConnectivityState: Equatable {
 public struct AppCoreState: Equatable {
     public init(
         matchHistoryState: MatchHistoryState = MatchHistoryState(),
+        userSettingsState: UserSettingsState = UserSettingsState(),
         selectedTabIndex: Int = 0,
         isMatchHistoryNavigationActive: Bool = false,
         isSettingsNavigationActive: Bool = false,
         watchConnectivityState: WatchConnectivityState = .init()
     ) {
         self.matchHistoryState = matchHistoryState
+        self.userSettingsState = userSettingsState
         self.selectedTabIndex = selectedTabIndex
         self.isMatchHistoryNavigationActive = isMatchHistoryNavigationActive
         self.isSettingsNavigationActive = isSettingsNavigationActive
@@ -38,6 +38,7 @@ public struct AppCoreState: Equatable {
     }
     
     public var matchHistoryState: MatchHistoryState
+    public var userSettingsState: UserSettingsState
     @BindableState public var selectedTabIndex: Int
     @BindableState public var isMatchHistoryNavigationActive: Bool
     @BindableState public var isSettingsNavigationActive: Bool
@@ -49,26 +50,11 @@ public enum AppCoreAction: BindableAction {
     case binding(BindingAction<AppCoreState>)
     case didChangeScenePhase(scenePhase: ScenePhase)
     case matchHistory(MatchHistoryAction)
+    case userSettings(UserSettingsAction)
     
     case setWatchAppInstalled(Bool)
     case setWCSessionSupported(Bool)
     case watchConnectivity(Result<WatchConnectivityClient.Action, WatchConnectivityClient.Failure>)
-}
-
-public struct AppCoreEnvironment {
-    public init(
-        mainQueue: AnySchedulerOf<DispatchQueue>,
-        matchClient: MatchClient,
-        watchConnectivityClient: WatchConnectivityClient
-    ) {
-        self.mainQueue = mainQueue
-        self.matchClient = matchClient
-        self.watchConnectivityClient = watchConnectivityClient
-    }
-    
-    var mainQueue: AnySchedulerOf<DispatchQueue>
-    var matchClient: MatchClient
-    var watchConnectivityClient: WatchConnectivityClient
 }
 
 private let reducer = AppCoreReducer

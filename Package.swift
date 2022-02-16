@@ -62,8 +62,19 @@ let package = Package(
         .target(
             name: "AppFeature",
             dependencies: [
+                "CloudKitClient",
+                "ComposableHelpers",
+                "EmailClient",
+                "FileClient",
                 "MatchHistoryListFeature",
                 "Models",
+                "ShareSheetClient",
+                "StoreKitClient",
+                "SwiftUIHelpers",
+                "UIApplicationClient",
+                "UIUserInterfaceStyleClient",
+                "UserDefaultsClient",
+                "UserSettingsFeature",
                 "WatchConnectivityClient",
                 "World",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
@@ -74,6 +85,7 @@ let package = Package(
             name: "CloudKitClient",
             dependencies: [
                 "CoreDataStack",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "CoreDataModelDescription", package: "core-data-model-description")
             ]
         ),

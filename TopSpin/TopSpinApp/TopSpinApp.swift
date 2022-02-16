@@ -8,7 +8,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     let store = Store(
         initialState: AppCoreState(),
         reducer: appCoreReducer.debug(),
-        environment: AppCoreEnvironment(mainQueue: .main, matchClient: .live, watchConnectivityClient: .live)
+        environment: .live
     )
     
     lazy var viewStore = ViewStore(

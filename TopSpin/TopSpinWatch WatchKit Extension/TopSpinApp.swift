@@ -12,7 +12,7 @@ struct TopSpinApp: App {
         self.store = Store(
             initialState: AppCoreState(),
             reducer: appCoreReducer.debug(),
-            environment: AppCoreEnvironment(mainQueue: .main, matchClient: .live, watchConnectivityClient: .live)
+            environment: .live
         )
          
         self.viewStore = ViewStore(
