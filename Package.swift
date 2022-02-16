@@ -15,13 +15,18 @@ let package = Package(
         .library(name: "AppFeature", targets: ["AppFeature"]),
         .library(name: "CloudKitClient", targets: ["CloudKitClient"]),
         .library(name: "CombineHelpers", targets: ["CombineHelpers"]),
+        .library(name: "ComposableHelpers", targets: ["ComposableHelpers"]),
         .library(name: "CoreDataModel", targets: ["CoreDataModel"]),
         .library(name: "CoreDataStack", targets: ["CoreDataStack"]),
         .library(name: "DefaultSettingClient", targets: ["DefaultSettingClient"]),
+        .library(name: "EmailClient", targets: ["EmailClient"]),
         .library(name: "FileClient", targets: ["FileClient"]),
         .library(name: "MatchHistoryListFeature", targets: ["MatchHistoryListFeature"]),
         .library(name: "MatchClient", targets: ["MatchClient"]),
         .library(name: "Models", targets: ["Models"]),
+        .library(name: "ShareSheetClient", targets: ["ShareSheetClient"]),
+        .library(name: "StoreKitClient", targets: ["StoreKitClient"]),
+        .library(name: "SwiftUIHelpers", targets: ["SwiftUIHelpers"]),
         .library(name: "UIApplicationClient", targets: ["UIApplicationClient"]),
         .library(name: "UIUserInterfaceStyleClient", targets: ["UIUserInterfaceStyleClient"]),
         .library(name: "UserDefaultsClient", targets: ["UserDefaultsClient"]),
@@ -73,6 +78,12 @@ let package = Package(
             ]
         ),
         .target(
+            name: "ComposableHelpers",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
+        ),
+        .target(
             name: "CombineHelpers",
             dependencies: [
                 .product(name: "CoreDataModelDescription", package: "core-data-model-description")
@@ -94,6 +105,12 @@ let package = Package(
         ),
         .target(
             name: "DefaultSettingClient",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
+        ),
+        .target(
+            name: "EmailClient",
             dependencies: [
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ]
@@ -128,6 +145,19 @@ let package = Package(
             dependencies: []
         ),
         .target(
+            name: "ShareSheetClient",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
+        ),
+        .target(
+            name: "StoreKitClient",
+            dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
+        ),
+        .target(name: "SwiftUIHelpers"),
+        .target(
             name: "UIApplicationClient",
             dependencies: [
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
@@ -148,8 +178,17 @@ let package = Package(
         .target(
             name: "UserSettingsFeature",
             dependencies: [
+                "CloudKitClient",
+                "ComposableHelpers",
+                "EmailClient",
                 "FileClient",
                 "Models",
+                "ShareSheetClient",
+                "StoreKitClient",
+                "SwiftUIHelpers",
+                "UIApplicationClient",
+                "UIUserInterfaceStyleClient",
+                "UserDefaultsClient",
                 "World",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ],
@@ -171,5 +210,11 @@ let package = Package(
 )
 
 package.targets.append(contentsOf: [
-    
+    .testTarget(
+        name: "UserSettingsTests",
+        dependencies: [
+            "UserSettingsFeature",
+            .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+        ]
+    )
 ])
