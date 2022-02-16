@@ -13,7 +13,6 @@ let package = Package(
     products: [
         .library(name: "AddMatchFeature", targets: ["AddMatchFeature"]),
         .library(name: "AppFeature", targets: ["AppFeature"]),
-        .library(name: "AppSettingsFeature", targets: ["AppSettingsFeature"]),
         .library(name: "CloudKitClient", targets: ["CloudKitClient"]),
         .library(name: "CombineHelpers", targets: ["CombineHelpers"]),
         .library(name: "CoreDataModel", targets: ["CoreDataModel"]),
@@ -26,6 +25,7 @@ let package = Package(
         .library(name: "UIApplicationClient", targets: ["UIApplicationClient"]),
         .library(name: "UIUserInterfaceStyleClient", targets: ["UIUserInterfaceStyleClient"]),
         .library(name: "UserDefaultsClient", targets: ["UserDefaultsClient"]),
+        .library(name: "UserSettingsFeature", targets: ["UserSettingsFeature"]),
         .library(name: "WatchConnectivityClient", targets: ["WatchConnectivityClient"]),
         .library(name: "World", targets: ["World"]),
     ],
@@ -63,18 +63,6 @@ let package = Package(
                 "World",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "CoreDataModelDescription", package: "core-data-model-description"),
-            ]
-        ),
-        .target(
-            name: "AppSettingsFeature",
-            dependencies: [
-                "FileClient",
-                "Models",
-                "World",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-            ],
-            resources: [
-                .process("Resources/")
             ]
         ),
         .target(
@@ -155,6 +143,18 @@ let package = Package(
             name: "UserDefaultsClient",
             dependencies: [
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
+        ),
+        .target(
+            name: "UserSettingsFeature",
+            dependencies: [
+                "FileClient",
+                "Models",
+                "World",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+            ],
+            resources: [
+                .process("Resources/")
             ]
         ),
         .target(
