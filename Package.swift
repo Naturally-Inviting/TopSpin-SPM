@@ -6,24 +6,25 @@ import PackageDescription
 let package = Package(
     name: "TopSpin",
     platforms: [
-        .iOS(.v15),
-        .watchOS(.v8),
-        .macOS(.v10_15)
+        .iOS(.v15)
     ],
     products: [
         .library(name: "AddMatchFeature", targets: ["AddMatchFeature"]),
+        .library(name: "AppDelegateFeature", targets: ["AppDelegateFeature"]),
         .library(name: "AppFeature", targets: ["AppFeature"]),
         .library(name: "CloudKitClient", targets: ["CloudKitClient"]),
         .library(name: "CombineHelpers", targets: ["CombineHelpers"]),
         .library(name: "ComposableHelpers", targets: ["ComposableHelpers"]),
         .library(name: "CoreDataModel", targets: ["CoreDataModel"]),
         .library(name: "CoreDataStack", targets: ["CoreDataStack"]),
+        .library(name: "DateExtension", targets: ["DateExtension"]),
         .library(name: "DefaultSettingClient", targets: ["DefaultSettingClient"]),
         .library(name: "EmailClient", targets: ["EmailClient"]),
         .library(name: "FileClient", targets: ["FileClient"]),
         .library(name: "MatchHistoryListFeature", targets: ["MatchHistoryListFeature"]),
         .library(name: "MatchClient", targets: ["MatchClient"]),
         .library(name: "Models", targets: ["Models"]),
+        .library(name: "MonthlySummaryListFeature", targets: ["MonthlySummaryListFeature"]),
         .library(name: "ShareSheetClient", targets: ["ShareSheetClient"]),
         .library(name: "StoreKitClient", targets: ["StoreKitClient"]),
         .library(name: "SwiftUIHelpers", targets: ["SwiftUIHelpers"]),
@@ -60,8 +61,18 @@ let package = Package(
             ]
         ),
         .target(
+            name: "AppDelegateFeature",
+            dependencies: [
+                "FileClient",
+                "UserSettingsFeature",
+                "UIUserInterfaceStyleClient",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+            ]
+        ),
+        .target(
             name: "AppFeature",
             dependencies: [
+                "AppDelegateFeature",
                 "CloudKitClient",
                 "ComposableHelpers",
                 "EmailClient",
@@ -116,6 +127,12 @@ let package = Package(
             ]
         ),
         .target(
+            name: "DateExtension",
+            dependencies: [
+                "World"
+            ]
+        ),
+        .target(
             name: "DefaultSettingClient",
             dependencies: [
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
@@ -148,6 +165,7 @@ let package = Package(
                 "AddMatchFeature",
                 "MatchClient",
                 "Models",
+                "MonthlySummaryListFeature",
                 "World",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ]
@@ -155,6 +173,17 @@ let package = Package(
         .target(
             name: "Models",
             dependencies: []
+        ),
+        .target(
+            name: "MonthlySummaryListFeature",
+            dependencies: [
+                "AddMatchFeature",
+                "DateExtension",
+                "MatchClient",
+                "Models",
+                "World",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
         ),
         .target(
             name: "ShareSheetClient",

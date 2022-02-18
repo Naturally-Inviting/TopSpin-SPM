@@ -290,14 +290,6 @@ public struct UserSettingsView: View {
             #endif
         }
         .navigationTitle("Settings")
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: { viewStore.send(.didTapClose) }) {
-                    Image(systemName: "xmark")
-                }
-                .foregroundColor(viewStore.accentColor.color)
-            }
-        }
         .onAppear {
             viewStore.send(.onAppear)
         }

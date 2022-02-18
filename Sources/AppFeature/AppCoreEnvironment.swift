@@ -53,7 +53,7 @@ public struct AppCoreEnvironment {
 }
 
 public extension AppCoreEnvironment {
-    var live: Self {
+    static var live: Self {
         Self(
             cloudKitClient: .live,
             emailClient: .live,

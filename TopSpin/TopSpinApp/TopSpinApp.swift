@@ -2,8 +2,6 @@ import AppFeature
 import ComposableArchitecture
 import SwiftUI
 
-//private(set) var globalViewStore: ViewStore<AppCoreState, AppCoreAction>!
-
 final class AppDelegate: NSObject, UIApplicationDelegate {
     let store = Store(
         initialState: AppCoreState(),
@@ -20,9 +18,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-//        globalViewStore = self.viewStore
-        
-//        self.viewStore.send(.appDelegate(.didFinishLaunching))
+        self.viewStore.send(.appDelegate(.didFinishLaunching))
         return true
     }
 }

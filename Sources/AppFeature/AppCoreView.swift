@@ -57,8 +57,8 @@ public struct AppCoreView: View {
                     )
                 }
                 .tabItem {
-                    Image(systemName: "list.dash")
-                    Text("History")
+                    Image(systemName: "heart.text.square")
+                    Text("Activity")
                 }
                 .tag(0)
                
@@ -70,12 +70,15 @@ public struct AppCoreView: View {
                         )
                     )
                 }
+                .navigationViewStyle(StackNavigationViewStyle())
                 .tabItem {
-                    Image(systemName: "square.grid.2x2.fill")
+                    Image(systemName: "gear")
                     Text("Settings")
                 }
                 .tag(1)
             }
+            .accentColor(viewStore.userSettingsState.userSettings.accentColor.color)
+
         } else {
             NavigationView {
                 sideBarRootNavigation

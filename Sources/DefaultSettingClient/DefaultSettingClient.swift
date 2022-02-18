@@ -2,6 +2,7 @@ import CloudKit
 import ComposableArchitecture
 import Foundation
 
+/// Defaults for Match Settings
 public struct DefaultSettingClient {
     public var defaultId: () -> UUID?
     public var setDefault: (UUID) -> Effect<Never, Never>

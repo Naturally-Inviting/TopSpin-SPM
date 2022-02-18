@@ -3,35 +3,35 @@ import Foundation
 public struct MatchSummary: Identifiable, Codable, Equatable {
     public init(
         id: UUID,
-        monthRange: Date,
+        dateRange: DateComponents,
         wins: Int,
         loses: Int,
         calories: Int,
-        avgHeartRate: Int,
+        heartRateAverage: Int,
         matches: [Match]
     ) {
         self.id = id
-        self.monthRange = monthRange
+        self.dateRange = dateRange
         self.wins = wins
         self.loses = loses
         self.calories = calories
-        self.avgHeartRate = avgHeartRate
+        self.heartRateAverage = heartRateAverage
         self.matches = matches
     }
     
     public var id: UUID
-    public var monthRange: Date
+    public var dateRange: DateComponents
     public var wins: Int
     public var loses: Int
     public var calories: Int
-    public var avgHeartRate: Int
+    public var heartRateAverage: Int
     public var matches: [Match]
-}
-
-extension MatchSummary {
-    public var dateRange: String {
+    
+    public func dateRange(in calendar: Calendar) -> String {
+        guard let date = calendar.date(from: self.dateRange)
+        else { return "n/a" }
         let dateFormmater = DateFormatter()
         dateFormmater.dateFormat = "MMM yyyy"
-        return dateFormmater.string(from: monthRange)
+        return dateFormmater.string(from: date)
     }
 }

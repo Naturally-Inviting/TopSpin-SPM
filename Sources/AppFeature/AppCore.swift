@@ -1,3 +1,4 @@
+import AppDelegateFeature
 import Combine
 import ComposableArchitecture
 import MatchHistoryListFeature
@@ -6,19 +7,6 @@ import UserSettingsFeature
 import WatchConnectivityClient
 
 public typealias AppCoreReducer = Reducer<AppCoreState, AppCoreAction, AppCoreEnvironment>
-
-public struct WatchConnectivityState: Equatable {
-    public var isWatchAppInstalled = false
-    public var isWCSessionSupported = false
-    
-    public init(
-        isWatchAppInstalled: Bool = false,
-        isWCSessionSupported: Bool = false
-    ) {
-        self.isWatchAppInstalled = isWatchAppInstalled
-        self.isWCSessionSupported = isWCSessionSupported
-    }
-}
 
 public struct AppCoreState: Equatable {
     public init(
@@ -42,7 +30,6 @@ public struct AppCoreState: Equatable {
     @BindableState public var selectedTabIndex: Int
     @BindableState public var isMatchHistoryNavigationActive: Bool
     @BindableState public var isSettingsNavigationActive: Bool
-    
     public var watchConnectivityState: WatchConnectivityState
 }
 
@@ -51,7 +38,9 @@ public enum AppCoreAction: BindableAction {
     case didChangeScenePhase(scenePhase: ScenePhase)
     case matchHistory(MatchHistoryAction)
     case userSettings(UserSettingsAction)
-    
+    case appDelegate(AppDelegateAction)
+
+    // Watch Connectivity
     case setWatchAppInstalled(Bool)
     case setWCSessionSupported(Bool)
     case watchConnectivity(Result<WatchConnectivityClient.Action, WatchConnectivityClient.Failure>)
@@ -83,7 +72,7 @@ private let reducer = AppCoreReducer
                 .eraseToEffect()
         )
         
-    case .didChangeScenePhase(scenePhase: .active):
+    case .appDelegate(.didFinishLaunching):
         return environment.watchConnectivityClient.activate(WatchConnectivityId())
             .receive(on: environment.mainQueue)
             .catchToEffect(AppCoreAction.watchConnectivity)
@@ -96,6 +85,18 @@ private let reducer = AppCoreReducer
 
 public let appCoreReducer: AppCoreReducer =
 .combine(
+    appDelegateReducer
+        .pullback(
+            state: \.userSettingsState.userSettings,
+            action: /AppCoreAction.appDelegate,
+            environment: {
+                AppDelegateEnvironment(
+                    fileClient: $0.fileClient,
+                    mainQueue: $0.mainQueue,
+                    uiUserInterfaceStyleClient: $0.uiUserInterfaceStyleClient
+                )
+            }
+        ),
     matchHistoryReducer
         .pullback(
             state: \.matchHistoryState,
@@ -104,6 +105,24 @@ public let appCoreReducer: AppCoreReducer =
                 MatchHistoryEnvironment(
                     mainQueue: $0.mainQueue,
                     matchClient: $0.matchClient
+                )
+            }
+        ),
+    userSettingsReducer
+        .pullback(
+            state: \.userSettingsState,
+            action: /AppCoreAction.userSettings,
+            environment: {
+                UserSettingsEnvironment(
+                    applicationClient: $0.uiApplicationClient,
+                    uiUserInterfaceStyleClient: $0.uiUserInterfaceStyleClient,
+                    fileClient: $0.fileClient,
+                    mainQueue: $0.mainQueue,
+                    userDefaults: $0.userDefaults,
+                    storeKitClient: $0.storeKitClient,
+                    shareSheetClient: $0.shareSheetClient,
+                    emailClient: $0.emailClient,
+                    cloudKitClient: $0.cloudKitClient
                 )
             }
         ),
