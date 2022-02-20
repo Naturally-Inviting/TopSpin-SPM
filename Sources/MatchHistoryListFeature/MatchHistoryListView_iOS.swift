@@ -1,9 +1,10 @@
 #if os(iOS)
 import AddMatchFeature
 import ComposableArchitecture
+import MatchSummaryDetailFeature
 import Models
-import SwiftUI
 import MonthlySummaryListFeature
+import SwiftUI
 
 public struct MatchHistoryListView: View {
     
@@ -31,15 +32,29 @@ public struct MatchHistoryListView: View {
     
     var matchHistoryList: some View {
         ForEach(viewStore.matches) { match in
-            MatchHistoryItem(match: match)
-                .contextMenu {
-                    Button(action: { viewStore.send(.deleteButtonTapped(match)) }){
-                        Label("Delete", systemImage: "trash")
+            NavigationLink(
+                destination: IfLetStore(
+                    self.store.scope(
+                        state: \.selectedMatch?.value
+                    ),
+                    then: { MatchSummaryDetailView(store: $0.actionless) }
+                ),
+                tag: match.id,
+                selection: viewStore.binding(
+                    get: \.selectedMatch?.id,
+                    send: MatchHistoryAction.setSelectedMatch(selection:)
+                )
+            ) {
+                MatchHistoryItem(match: match)
+                    .contextMenu {
+                        Button(action: { viewStore.send(.deleteButtonTapped(match)) }){
+                            Label("Delete", systemImage: "trash")
+                        }
                     }
-                }
-                .buttonStyle(PlainButtonStyle())
-                .padding(.horizontal)
-                .padding(.vertical, 6)
+                    .padding(.horizontal)
+                    .padding(.vertical, 6)
+            }
+            .buttonStyle(PlainButtonStyle())
         }
     }
     
@@ -49,9 +64,7 @@ public struct MatchHistoryListView: View {
                 .edgesIgnoringSafeArea(.all)
             
             VStack {
-                ScrollView {
-                    // TODO: Horizontal Summary Feature
-                    
+                ScrollView {                    
                     HorizontalMonthlySummaryView(
                         store: store.scope(
                             state: \.monthlySummaryState,

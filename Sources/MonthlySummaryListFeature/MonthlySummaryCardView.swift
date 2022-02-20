@@ -9,7 +9,7 @@ struct MonthlySummaryCardView: View {
     
     @State private var isExpanded: Bool = false
     
-    var summary: MatchSummary
+    var summary: MonthlySummary
     
     var backgroundColor: UIColor {
         return colorScheme == .dark ? .secondarySystemBackground : .systemBackground
@@ -100,7 +100,7 @@ struct MonthlySummaryCardView: View {
 
 struct HistorySummaryView_Previews: PreviewProvider {
     
-    static let summary = MatchSummary(
+    static let summary = MonthlySummary(
         id: UUID(),
         dateRange: DateComponents(
             calendar: .current,

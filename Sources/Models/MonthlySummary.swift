@@ -1,6 +1,6 @@
 import Foundation
 
-public struct MatchSummary: Identifiable, Codable, Equatable {
+public struct MonthlySummary: Identifiable, Codable, Equatable {
     public init(
         id: UUID,
         dateRange: DateComponents,

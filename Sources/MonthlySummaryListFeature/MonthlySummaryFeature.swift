@@ -9,19 +9,19 @@ public typealias MonthlySummaryReducer = Reducer<MonthlySummaryState, MonthlySum
 public struct MonthlySummaryState: Equatable {
     public init(
         matches: [Match] = [],
-        selectedSummary: Identified<MatchSummary.ID, MonthlyDetailState>? = nil
+        selectedSummary: Identified<MonthlySummary.ID, MonthlyDetailState>? = nil
     ) {
         let summary = Self.matchSummary(from: matches)
-        self.matchSummary = IdentifiedArrayOf<MatchSummary>(uniqueElements: summary)
+        self.monthlySummary = IdentifiedArrayOf<MonthlySummary>(uniqueElements: summary)
         self.selectedSummary = selectedSummary
     }
     
-    internal var matchSummary: IdentifiedArrayOf<MatchSummary>
-    internal var selectedSummary: Identified<MatchSummary.ID, MonthlyDetailState>?
+    internal var monthlySummary: IdentifiedArrayOf<MonthlySummary>
+    internal var selectedSummary: Identified<MonthlySummary.ID, MonthlyDetailState>?
     
-    internal static func matchSummary(from matches: [Match]) -> [MatchSummary] {
+    internal static func matchSummary(from matches: [Match]) -> [MonthlySummary] {
         let groupedMatches = matches.groupedBy(dateComponents: [.month], dateMap: { $0.date })
-        var summaryList = [MatchSummary]()
+        var summaryList = [MonthlySummary]()
         
         groupedMatches.forEach { date, matches in
             
@@ -45,7 +45,7 @@ public struct MonthlySummaryState: Equatable {
             
             let totalEntries = max(1, totalHeartEntries) // So that you cannot divide by 0
             let heartAverage = Int(totalHeartRate/totalEntries)
-            let summary = MatchSummary(
+            let summary = MonthlySummary(
                 id: Current.uuid(),
                 dateRange: date,
                 wins: totalWins,
@@ -81,7 +81,7 @@ public let monthlySummaryReducer = MonthlySummaryReducer
 { state, action, environment in
     switch action {
     case let .setNavigation(selection: .some(id)):
-        if let summary = state.matchSummary[id: id] {
+        if let summary = state.monthlySummary[id: id] {
             state.selectedSummary = Identified(
                 MonthlyDetailState(
                     summary: summary
@@ -114,20 +114,23 @@ public struct HorizontalMonthlySummaryView: View {
         VStack {
             HStack {
                 Text("Summary")
+                    .font(.subheadline.bold())
+                    .foregroundColor(.secondary)
                     .padding(.horizontal)
                 Spacer()
             }
             
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(alignment: .top, spacing: 16) {
-                    ForEach(viewStore.matchSummary) { summary in
+                    ForEach(viewStore.monthlySummary) { summary in
                         
                         NavigationLink(
                             destination: IfLetStore(
                                 self.store.scope(
                                     state: \.selectedSummary?.value
                                 ),
-                                then: { MonthlySummaryDetailView(store: $0.actionless) }),
+                                then: { MonthlySummaryDetailView(store: $0.actionless) }
+                            ),
                             tag: summary.id,
                             selection: viewStore.binding(
                                 get: \.selectedSummary?.id,
@@ -149,7 +152,7 @@ public struct HorizontalMonthlySummaryView: View {
 struct HorizontalSummaryView_Previews: PreviewProvider {
     
     static let list = [
-        MatchSummary(
+        MonthlySummary(
             id: UUID(),
             dateRange: DateComponents(
                 calendar: .current,
@@ -163,7 +166,7 @@ struct HorizontalSummaryView_Previews: PreviewProvider {
             heartRateAverage: 145,
             matches: []
         ),
-        MatchSummary(
+        MonthlySummary(
             id: UUID(),
             dateRange: DateComponents(
                 calendar: .current,

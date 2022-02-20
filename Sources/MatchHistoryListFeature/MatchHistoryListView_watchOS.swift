@@ -1,5 +1,6 @@
 #if os(watchOS)
 import ComposableArchitecture
+import MatchSummaryDetailFeature
 import Models
 import SwiftUI
 
@@ -23,7 +24,21 @@ public struct MatchHistoryListView: View {
             } else {
                 List {
                     ForEach(viewStore.matches) { match in
-                        MatchHistoryItem(match: match)
+                        NavigationLink(
+                            destination: IfLetStore(
+                                self.store.scope(
+                                    state: \.selectedMatch?.value
+                                ),
+                                then: { MatchSummaryDetailView(store: $0.actionless) }
+                            ),
+                            tag: match.id,
+                            selection: viewStore.binding(
+                                get: \.selectedMatch?.id,
+                                send: MatchHistoryAction.setSelectedMatch(selection:)
+                            )
+                        ) {
+                            MatchHistoryItem(match: match)
+                        }
                     }
                 }
             }

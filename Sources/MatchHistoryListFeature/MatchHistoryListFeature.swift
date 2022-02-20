@@ -2,6 +2,7 @@ import AddMatchFeature
 import ComposableArchitecture
 import Foundation
 import MatchClient
+import MatchSummaryDetailFeature
 import Models
 import MonthlySummaryListFeature
 
@@ -10,7 +11,7 @@ public typealias MatchHistoryReducer = Reducer<MatchHistoryState, MatchHistoryAc
 public struct MatchHistoryState: Equatable {
     public init(
         matches: IdentifiedArrayOf<Match> = [],
-        selectedMatch: Identified<Match.ID, Match>? = nil,
+        selectedMatch: Identified<Match.ID, MatchSummaryState>? = nil,
         isWatchAppInstalled: Bool = false,
         isWCSessionSupported: Bool = false,
         isMatchRequestInFlight: Bool = false,
@@ -31,7 +32,7 @@ public struct MatchHistoryState: Equatable {
     }
     
     public var matches: IdentifiedArrayOf<Match>
-    public var selectedMatch: Identified<Match.ID, Match>?
+    public var selectedMatch: Identified<Match.ID, MatchSummaryState>?
     public var isWatchAppInstalled: Bool
     public var isWCSessionSupported: Bool
     public var isMatchRequestInFlight: Bool
@@ -44,7 +45,7 @@ public struct MatchHistoryState: Equatable {
 public enum MatchHistoryAction: Equatable, BindableAction {
     case binding(BindingAction<MatchHistoryState>)
     case deleteButtonTapped(Match)
-    case setSelectedMatch(selection: Match?)
+    case setSelectedMatch(selection: UUID?)
     case viewLoaded
     case matchesResponse(Result<[Match], MatchClient.Failure>)
     case openWatchSettingsTapped
@@ -100,10 +101,10 @@ private let reducer = MatchHistoryReducer
         state.monthlySummaryState = MonthlySummaryState(matches: matches)
         return .none
         
-    case let .setSelectedMatch(selection: .some(match)):
-        if let match = state.matches[id: match.id] {
+    case let .setSelectedMatch(selection: .some(id)):
+        if let match = state.matches[id: id] {
             state.selectedMatch = Identified(
-                match,
+                MatchSummaryState(match: match),
                 id: match.id
             )
         }
@@ -111,10 +112,6 @@ private let reducer = MatchHistoryReducer
         return .none
         
     case .setSelectedMatch(selection: .none):
-        if let selectionState = state.selectedMatch {
-            state.matches[id: selectionState.id] = selectionState.value
-        }
-
         state.selectedMatch = nil
         return .none
         
@@ -143,6 +140,7 @@ private let reducer = MatchHistoryReducer
         
     case let .addMatch(.saveMatchResponse(.success(match))):
         state.matches.append(match)
+        state.monthlySummaryState = .init(matches: state.matches.elements)
         state.isAddMatchNavigationActive = false
         return .none
         

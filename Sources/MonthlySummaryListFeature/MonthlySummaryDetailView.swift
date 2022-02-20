@@ -4,11 +4,11 @@ import SwiftUI
 import World
 
 public struct MonthlyDetailState: Equatable {
-    public init(summary: MatchSummary) {
+    public init(summary: MonthlySummary) {
         self.summary = summary
     }
     
-    var summary: MatchSummary
+    var summary: MonthlySummary
 }
 
 struct MonthlySummaryDetailView: View {
@@ -32,7 +32,7 @@ struct MonthlySummaryDetail: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.horizontalSizeClass) var horizontalSize
     
-    var summary: MatchSummary
+    var summary: MonthlySummary
     
     var heartPoints: [Double] {
         return summary.matches
@@ -123,7 +123,7 @@ struct MonthlySummaryDetail: View {
 struct MonthlySummaryDetail_Previews: PreviewProvider {
     
     static let matchRange: CountableClosedRange = 1...14
-    static let summary = MatchSummary(
+    static let summary = MonthlySummary(
         id: UUID(),
         dateRange: DateComponents(
             calendar: .current,

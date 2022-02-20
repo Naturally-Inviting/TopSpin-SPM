@@ -23,6 +23,7 @@ let package = Package(
         .library(name: "EmailClient", targets: ["EmailClient"]),
         .library(name: "FileClient", targets: ["FileClient"]),
         .library(name: "MatchHistoryListFeature", targets: ["MatchHistoryListFeature"]),
+        .library(name: "MatchSummaryDetailFeature", targets: ["MatchSummaryDetailFeature"]),
         .library(name: "MatchClient", targets: ["MatchClient"]),
         .library(name: "Models", targets: ["Models"]),
         .library(name: "MonthlySummaryListFeature", targets: ["MonthlySummaryListFeature"]),
@@ -166,7 +167,16 @@ let package = Package(
                 "AddMatchFeature",
                 "MatchClient",
                 "Models",
+                "MatchSummaryDetailFeature",
                 "MonthlySummaryListFeature",
+                "World",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
+        ),
+        .target(
+            name: "MatchSummaryDetailFeature",
+            dependencies: [
+                "Models",
                 "World",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ]
@@ -180,7 +190,6 @@ let package = Package(
             dependencies: [
                 "AddMatchFeature",
                 "DateExtension",
-                "MatchClient",
                 "Models",
                 "World",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
