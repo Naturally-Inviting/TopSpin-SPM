@@ -30,8 +30,7 @@ public struct MatchSummary: Identifiable, Codable, Equatable {
     public func dateRange(in calendar: Calendar) -> String {
         guard let date = calendar.date(from: self.dateRange)
         else { return "n/a" }
-        let dateFormmater = DateFormatter()
-        dateFormmater.dateFormat = "MMM yyyy"
-        return dateFormmater.string(from: date)
+        
+        return date.formatted(.dateTime.month(.abbreviated).year())
     }
 }

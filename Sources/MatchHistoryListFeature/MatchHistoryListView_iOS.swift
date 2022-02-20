@@ -1,8 +1,9 @@
 #if os(iOS)
+import AddMatchFeature
 import ComposableArchitecture
 import Models
 import SwiftUI
-import AddMatchFeature
+import MonthlySummaryListFeature
 
 public struct MatchHistoryListView: View {
     
@@ -50,6 +51,13 @@ public struct MatchHistoryListView: View {
             VStack {
                 ScrollView {
                     // TODO: Horizontal Summary Feature
+                    
+                    HorizontalMonthlySummaryView(
+                        store: store.scope(
+                            state: \.monthlySummaryState,
+                            action: MatchHistoryAction.monthlySummary
+                        )
+                    )
                     
                     if horizontalSize != .regular {
                         LazyVStack(spacing: 0) {

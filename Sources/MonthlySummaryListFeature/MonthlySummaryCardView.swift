@@ -106,11 +106,7 @@ struct HistorySummaryView_Previews: PreviewProvider {
             calendar: .current,
             timeZone: .current,
             year: 2020,
-            month: 11,
-            day: 11,
-            hour: 13,
-            minute: 30,
-            second: 0
+            month: 11
         ),
         wins: 12,
         loses: 2,

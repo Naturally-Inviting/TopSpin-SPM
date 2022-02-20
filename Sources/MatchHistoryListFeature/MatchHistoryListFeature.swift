@@ -3,6 +3,7 @@ import ComposableArchitecture
 import Foundation
 import MatchClient
 import Models
+import MonthlySummaryListFeature
 
 public typealias MatchHistoryReducer = Reducer<MatchHistoryState, MatchHistoryAction, MatchHistoryEnvironment>
 
@@ -15,6 +16,7 @@ public struct MatchHistoryState: Equatable {
         isMatchRequestInFlight: Bool = false,
         isDeleteMatchRequestInFlight: Bool = false,
         addMatchState: AddMatchState = .init(),
+        monthlySummaryState: MonthlySummaryState = .init(),
         isAddMatchNavigationActive: Bool = false
     ) {
         self.matches = matches
@@ -24,6 +26,7 @@ public struct MatchHistoryState: Equatable {
         self.isMatchRequestInFlight = isMatchRequestInFlight
         self.isDeleteMatchRequestInFlight = isDeleteMatchRequestInFlight
         self.addMatchState = addMatchState
+        self.monthlySummaryState = monthlySummaryState
         self.isAddMatchNavigationActive = isAddMatchNavigationActive
     }
     
@@ -34,6 +37,7 @@ public struct MatchHistoryState: Equatable {
     public var isMatchRequestInFlight: Bool
     public var isDeleteMatchRequestInFlight: Bool
     public var addMatchState: AddMatchState
+    public var monthlySummaryState: MonthlySummaryState
     @BindableState public var isAddMatchNavigationActive: Bool = false
 }
 
@@ -45,6 +49,7 @@ public enum MatchHistoryAction: Equatable, BindableAction {
     case matchesResponse(Result<[Match], MatchClient.Failure>)
     case openWatchSettingsTapped
     case addMatch(AddMatchAction)
+    case monthlySummary(MonthlySummaryAction)
 }
 
 public struct MatchHistoryEnvironment {
@@ -73,6 +78,12 @@ public let matchHistoryReducer: MatchHistoryReducer =
                 )
             }
         ),
+    monthlySummaryReducer
+        .pullback(
+            state: \.monthlySummaryState,
+            action: /MatchHistoryAction.monthlySummary,
+            environment: { _ in .init() }
+        ),
     reducer
 )
 
@@ -86,6 +97,7 @@ private let reducer = MatchHistoryReducer
     case let .matchesResponse(.success(matches)):
         state.isMatchRequestInFlight = false
         state.matches = IdentifiedArrayOf<Match>(uniqueElements: matches)
+        state.monthlySummaryState = MonthlySummaryState(matches: matches)
         return .none
         
     case let .setSelectedMatch(selection: .some(match)):
