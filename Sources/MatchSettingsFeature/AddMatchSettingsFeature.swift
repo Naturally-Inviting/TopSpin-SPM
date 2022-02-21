@@ -47,17 +47,22 @@ public enum AddMatchSettingsAction: Equatable, BindableAction {
 
 public struct AddMatchSettingsEnvironment {
     public init(
+        mainQueue: AnySchedulerOf<DispatchQueue> = .main,
         settingsClient: MatchSettingsClient
     ) {
+        self.mainQueue = mainQueue
         self.settingsClient = settingsClient
     }
     
+    var mainQueue: AnySchedulerOf<DispatchQueue>
     var settingsClient: MatchSettingsClient
 }
 
 public let addMatchSettingsReducer = AddMatchSettingsReducer
 { state, action, environment in
     switch action {
+    case .saveSettings:
+        return .none
     default:
         return .none
     }

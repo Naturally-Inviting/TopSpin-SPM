@@ -1,5 +1,6 @@
 import CloudKitClient
 import ComposableArchitecture
+import DefaultSettingClient
 import EmailClient
 import FileClient
 import Foundation
@@ -10,15 +11,18 @@ import UIApplicationClient
 import UIUserInterfaceStyleClient
 import UserDefaultsClient
 import WatchConnectivityClient
+import MatchSettingsClient
 
 public struct AppCoreEnvironment {
     
     public init(
         cloudKitClient: CloudKitClient,
+        defaultSettingsClient: DefaultSettingClient,
         emailClient: EmailClient,
         fileClient: FileClient,
         mainQueue: AnySchedulerOf<DispatchQueue>,
         matchClient: MatchClient,
+        matchSettingsClient: MatchSettingsClient,
         storeKitClient: StoreKitClient,
         shareSheetClient: ShareSheetClient,
         watchConnectivityClient: WatchConnectivityClient,
@@ -27,10 +31,12 @@ public struct AppCoreEnvironment {
         userDefaults: UserDefaultsClient
     ) {
         self.cloudKitClient = cloudKitClient
+        self.defaultSettingsClient = defaultSettingsClient
         self.emailClient = emailClient
         self.fileClient = fileClient
         self.mainQueue = mainQueue
         self.matchClient = matchClient
+        self.matchSettingsClient = matchSettingsClient
         self.storeKitClient = storeKitClient
         self.shareSheetClient = shareSheetClient
         self.watchConnectivityClient = watchConnectivityClient
@@ -40,10 +46,12 @@ public struct AppCoreEnvironment {
     }
    
     var cloudKitClient: CloudKitClient
+    var defaultSettingsClient: DefaultSettingClient
     var emailClient: EmailClient
     var fileClient: FileClient
     var mainQueue: AnySchedulerOf<DispatchQueue>
     var matchClient: MatchClient
+    var matchSettingsClient: MatchSettingsClient
     var storeKitClient: StoreKitClient
     var shareSheetClient: ShareSheetClient
     var watchConnectivityClient: WatchConnectivityClient
@@ -56,10 +64,12 @@ public extension AppCoreEnvironment {
     static var live: Self {
         Self(
             cloudKitClient: .live,
+            defaultSettingsClient: .live,
             emailClient: .live,
             fileClient: .live,
             mainQueue: .main,
             matchClient: .live,
+            matchSettingsClient: .live,
             storeKitClient: .live,
             shareSheetClient: .live,
             watchConnectivityClient: .live,

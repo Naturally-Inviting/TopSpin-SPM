@@ -114,15 +114,17 @@ public let appCoreReducer: AppCoreReducer =
             action: /AppCoreAction.userSettings,
             environment: {
                 UserSettingsEnvironment(
-                    cloudKitClient: $0.uiApplicationClient,
-                    emailClient: $0.uiUserInterfaceStyleClient,
+                    cloudKitClient: $0.cloudKitClient,
+                    defaultSettingsClient: $0.defaultSettingsClient,
+                    emailClient: $0.emailClient,
                     fileClient: $0.fileClient,
                     mainQueue: $0.mainQueue,
-                    shareSheetClient: $0.userDefaults,
+                    matchSettingsClient: $0.matchSettingsClient,
+                    shareSheetClient: $0.shareSheetClient,
                     storeKitClient: $0.storeKitClient,
-                    uiApplicationClient: $0.shareSheetClient,
-                    uiUserInterfaceStyleClient: $0.emailClient,
-                    userDefaults: $0.cloudKitClient
+                    uiApplicationClient: $0.uiApplicationClient,
+                    uiUserInterfaceStyleClient: $0.uiUserInterfaceStyleClient,
+                    userDefaults: $0.userDefaults
                 )
             }
         ),

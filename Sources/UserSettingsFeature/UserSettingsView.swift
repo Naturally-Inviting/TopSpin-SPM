@@ -1,8 +1,11 @@
 import CloudKitClient
 import ComposableArchitecture
 import ComposableHelpers
+import DefaultSettingClient
 import EmailClient
 import FileClient
+import MatchSettingsClient
+import MatchSettingsFeature
 import StoreKitClient
 import ShareSheetClient
 import SwiftUI
@@ -11,37 +14,43 @@ import UIApplicationClient
 import UIUserInterfaceStyleClient
 import UserDefaultsClient
 
-typealias UserSettingsReducer = Reducer<UserSettingsState, UserSettingsAction, UserSettingsEnvironment>
+public typealias UserSettingsReducer = Reducer<UserSettingsState, UserSettingsAction, UserSettingsEnvironment>
 
 public struct UserSettingsState: Equatable {
     public init(
         supportsAlternativeIcon: Bool = true,
         isSyncWithiCloudOn: Bool = true,
+        matchSettingsState: MatchSettingsState? = nil,
         colorScheme: ColorScheme = .system,
         appIcon: AppIcon? = nil,
         accentColor: AccentColor = .blue,
         isColorSchemeNavigationActive: Bool = false,
         isAppIconNavigationActive: Bool = false,
-        isAccentColorNavigationActive: Bool = false
+        isAccentColorNavigationActive: Bool = false,
+        isMatchSettingsNavigationActive: Bool = false
     ) {
         self.supportsAlternativeIcon = supportsAlternativeIcon
         self.isSyncWithiCloudOn = isSyncWithiCloudOn
+        self.matchSettingsState = matchSettingsState
         self.colorScheme = colorScheme
         self.appIcon = appIcon
         self.accentColor = accentColor
         self.isColorSchemeNavigationActive = isColorSchemeNavigationActive
         self.isAppIconNavigationActive = isAppIconNavigationActive
         self.isAccentColorNavigationActive = isAccentColorNavigationActive
+        self.isMatchSettingsNavigationActive = isMatchSettingsNavigationActive
     }
     
     public var supportsAlternativeIcon: Bool
     public var isSyncWithiCloudOn: Bool
+    public var matchSettingsState: MatchSettingsState?
     @BindableState public var colorScheme: ColorScheme
     @BindableState public var appIcon: AppIcon?
     @BindableState public var accentColor: AccentColor
     @BindableState public var isColorSchemeNavigationActive: Bool
     @BindableState public var isAppIconNavigationActive: Bool
     @BindableState public var isAccentColorNavigationActive: Bool
+    @BindableState public var isMatchSettingsNavigationActive: Bool
     
     public var userSettings: UserSettings {
         get {
@@ -67,6 +76,7 @@ public enum UserSettingsAction: BindableAction, Equatable {
     case helpAndSupportTapped
     case rateAppTapped
     case shareAppTapped
+    case matchSettings(MatchSettingsAction)
     
     #if DEBUG
     case clearCache
@@ -76,9 +86,11 @@ public enum UserSettingsAction: BindableAction, Equatable {
 public struct UserSettingsEnvironment {
     public init(
         cloudKitClient: CloudKitClient,
+        defaultSettingsClient: DefaultSettingClient,
         emailClient: EmailClient,
         fileClient: FileClient,
         mainQueue: AnySchedulerOf<DispatchQueue>,
+        matchSettingsClient: MatchSettingsClient,
         shareSheetClient: ShareSheetClient,
         storeKitClient: StoreKitClient,
         uiApplicationClient: UIApplicationClient,
@@ -86,9 +98,11 @@ public struct UserSettingsEnvironment {
         userDefaults: UserDefaultsClient
     ) {
         self.cloudKitClient = cloudKitClient
+        self.defaultSettingsClient = defaultSettingsClient
         self.emailClient = emailClient
         self.fileClient = fileClient
         self.mainQueue = mainQueue
+        self.matchSettingsClient = matchSettingsClient
         self.shareSheetClient = shareSheetClient
         self.storeKitClient = storeKitClient
         self.uiApplicationClient = uiApplicationClient
@@ -97,9 +111,11 @@ public struct UserSettingsEnvironment {
     }
     
     public var cloudKitClient: CloudKitClient
+    public var defaultSettingsClient: DefaultSettingClient
     public var emailClient: EmailClient
     public var fileClient: FileClient
     public var mainQueue: AnySchedulerOf<DispatchQueue>
+    public var matchSettingsClient: MatchSettingsClient
     public var shareSheetClient: ShareSheetClient
     public var storeKitClient: StoreKitClient
     public var uiApplicationClient: UIApplicationClient
@@ -107,7 +123,7 @@ public struct UserSettingsEnvironment {
     public var userDefaults: UserDefaultsClient
 }
 
-public let userSettingsReducer = UserSettingsReducer
+private let reducer = UserSettingsReducer
 { state, action, environment in
     switch action {
         
@@ -126,6 +142,15 @@ public let userSettingsReducer = UserSettingsReducer
         state.isSyncWithiCloudOn = isOn
         return environment.cloudKitClient.setCloudSync(isOn)
             .fireAndForget()
+        
+    case .binding(\.$isMatchSettingsNavigationActive):
+        if state.isMatchSettingsNavigationActive {
+            state.matchSettingsState = MatchSettingsState(accentColor: state.userSettings.accentColor.color)
+        } else {
+            state.matchSettingsState = nil
+        }
+        
+        return .none
         
     case .binding(\.$colorScheme):
         return environment.uiUserInterfaceStyleClient.setUserInterfaceStyle(state.colorScheme.userInterfaceStyle)
@@ -162,6 +187,24 @@ public let userSettingsReducer = UserSettingsReducer
         .debounce(id: SaveDebounceId(), for: .seconds(1), scheduler: environment.mainQueue)
 }
 
+public let userSettingsReducer: UserSettingsReducer =
+.combine(
+    matchSettingsReducer
+        .optional()
+        .pullback(
+            state: \.matchSettingsState,
+            action: /UserSettingsAction.matchSettings,
+            environment: {
+                MatchSettingsEnvironment(
+                    defaultSettingsClient: $0.defaultSettingsClient,
+                    mainQueue: $0.mainQueue,
+                    settingsClient: $0.matchSettingsClient
+                )
+            }
+        ),
+    reducer
+)
+
 public struct UserSettingsView: View {
     let store: Store<UserSettingsState, UserSettingsAction>
     @ObservedObject var viewStore: ViewStore<UserSettingsState, UserSettingsAction>
@@ -176,9 +219,20 @@ public struct UserSettingsView: View {
     public var body: some View {
         List {
             Section(
-                footer:
-                    Text("Syncing with iCloud will make sure your data is on all your devices.")
+                footer: Text("Syncing with iCloud will make sure your data is on all your devices.")
             ) {
+                NavigationLink(
+                    "🏓  Match Settings",
+                    isActive: viewStore.binding(\.$isMatchSettingsNavigationActive).removeDuplicates()
+                ) {
+                    IfLetStore(
+                        self.store.scope(
+                            state: \.matchSettingsState,
+                            action: UserSettingsAction.matchSettings
+                        ),
+                        then: MatchSettingsView.init
+                    )
+                }
                 
                 Toggle(isOn: viewStore.binding(
                     get: \.isSyncWithiCloudOn,
@@ -190,7 +244,6 @@ public struct UserSettingsView: View {
                         Text("iCloud Sync")
                     }
                 }
-                
             }
             .textCase(nil)
             
@@ -306,9 +359,18 @@ struct UserSettingsView_Previews: PreviewProvider {
                         reducer: userSettingsReducer,
                         environment: .init(
                             cloudKitClient: .noop,
+                            defaultSettingsClient: .init(
+                                defaultId: { nil },
+                                setDefault: { _ in .none}
+                            ),
                             emailClient: .noop,
                             fileClient: .noop,
                             mainQueue: .main,
+                            matchSettingsClient: .init(
+                                fetch: { .none },
+                                create: { _ in .none },
+                                delete: { _ in .none }
+                            ),
                             shareSheetClient: .noop,
                             storeKitClient: .noop,
                             uiApplicationClient: .noop,

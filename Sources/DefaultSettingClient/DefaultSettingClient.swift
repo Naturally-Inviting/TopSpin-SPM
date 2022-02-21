@@ -4,6 +4,14 @@ import Foundation
 
 /// Defaults for Match Settings
 public struct DefaultSettingClient {
+    public init(
+        defaultId: @escaping () -> UUID?,
+        setDefault: @escaping (UUID) -> Effect<Never, Never>
+    ) {
+        self.defaultId = defaultId
+        self.setDefault = setDefault
+    }
+    
     public var defaultId: () -> UUID?
     public var setDefault: (UUID) -> Effect<Never, Never>
 }

@@ -79,9 +79,12 @@ let package = Package(
                 "AppDelegateFeature",
                 "CloudKitClient",
                 "ComposableHelpers",
+                "DefaultSettingClient",
                 "EmailClient",
                 "FileClient",
+                "MatchClient",
                 "MatchHistoryListFeature",
+                "MatchSettingsClient",
                 "Models",
                 "ShareSheetClient",
                 "StoreKitClient",
@@ -186,8 +189,10 @@ let package = Package(
         .target(
             name: "MatchSettingsFeature",
             dependencies: [
+                "DefaultSettingClient",
                 "MatchSettingsClient",
                 "Models",
+                "SwiftUIHelpers",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ]
         ),
@@ -249,8 +254,10 @@ let package = Package(
             dependencies: [
                 "CloudKitClient",
                 "ComposableHelpers",
+                "DefaultSettingClient",
                 "EmailClient",
                 "FileClient",
+                "MatchSettingsClient",
                 "MatchSettingsFeature",
                 "Models",
                 "ShareSheetClient",
