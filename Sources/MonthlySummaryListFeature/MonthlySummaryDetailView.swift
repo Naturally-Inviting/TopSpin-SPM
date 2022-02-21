@@ -110,8 +110,18 @@ struct MonthlySummaryDetail: View {
             bodyContent
                 .padding()
             
-            MetricGraphView(title: "Average Heart Rate", labels: summary.matches.map({ $0.shortDate }), data: heartPoints, foregroundColor: ColorGradient(.pink, .red))
-            MetricGraphView(title: "Calories Burned", labels: summary.matches.map({ $0.shortDate }), data: caloriePoints, foregroundColor: ColorGradient(.green))
+            MetricGraphView(
+                title: "Average Heart Rate",
+                labels: summary.matches.map({ $0.shortDate }),
+                data: heartPoints,
+                foregroundColor: ColorGradient(.pink, .red)
+            )
+            MetricGraphView(
+                title: "Calories Burned",
+                labels: summary.matches.map({ $0.shortDate }),
+                data: caloriePoints,
+                foregroundColor: ColorGradient(.green)
+            )
             
             Spacer()
         }

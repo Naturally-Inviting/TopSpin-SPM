@@ -20,7 +20,7 @@ public struct MonthlySummaryState: Equatable {
     internal var selectedSummary: Identified<MonthlySummary.ID, MonthlyDetailState>?
     
     internal static func matchSummary(from matches: [Match]) -> [MonthlySummary] {
-        let groupedMatches = matches.groupedBy(dateComponents: [.month], dateMap: { $0.date })
+        let groupedMatches = matches.groupedBy(dateComponents: [.month, .year], dateMap: { $0.date })
         var summaryList = [MonthlySummary]()
         
         groupedMatches.forEach { date, matches in

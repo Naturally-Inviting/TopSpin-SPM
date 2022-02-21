@@ -22,9 +22,11 @@ let package = Package(
         .library(name: "DefaultSettingClient", targets: ["DefaultSettingClient"]),
         .library(name: "EmailClient", targets: ["EmailClient"]),
         .library(name: "FileClient", targets: ["FileClient"]),
-        .library(name: "MatchHistoryListFeature", targets: ["MatchHistoryListFeature"]),
-        .library(name: "MatchSummaryDetailFeature", targets: ["MatchSummaryDetailFeature"]),
         .library(name: "MatchClient", targets: ["MatchClient"]),
+        .library(name: "MatchHistoryListFeature", targets: ["MatchHistoryListFeature"]),
+        .library(name: "MatchSettingsClient", targets: ["MatchSettingsClient"]),
+        .library(name: "MatchSettingsFeature", targets: ["MatchSettingsFeature"]),
+        .library(name: "MatchSummaryDetailFeature", targets: ["MatchSummaryDetailFeature"]),
         .library(name: "Models", targets: ["Models"]),
         .library(name: "MonthlySummaryListFeature", targets: ["MonthlySummaryListFeature"]),
         .library(name: "ShareSheetClient", targets: ["ShareSheetClient"]),
@@ -174,6 +176,22 @@ let package = Package(
             ]
         ),
         .target(
+            name: "MatchSettingsClient",
+            dependencies: [
+                "CoreDataModel",
+                "Models",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
+        ),
+        .target(
+            name: "MatchSettingsFeature",
+            dependencies: [
+                "MatchSettingsClient",
+                "Models",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
+        ),
+        .target(
             name: "MatchSummaryDetailFeature",
             dependencies: [
                 "Models",
@@ -233,6 +251,7 @@ let package = Package(
                 "ComposableHelpers",
                 "EmailClient",
                 "FileClient",
+                "MatchSettingsFeature",
                 "Models",
                 "ShareSheetClient",
                 "StoreKitClient",

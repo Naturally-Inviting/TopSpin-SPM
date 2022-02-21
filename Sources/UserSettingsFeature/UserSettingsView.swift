@@ -75,36 +75,36 @@ public enum UserSettingsAction: BindableAction, Equatable {
 
 public struct UserSettingsEnvironment {
     public init(
-        applicationClient: UIApplicationClient,
-        uiUserInterfaceStyleClient: UIUserInterfaceStyleClient,
+        cloudKitClient: CloudKitClient,
+        emailClient: EmailClient,
         fileClient: FileClient,
         mainQueue: AnySchedulerOf<DispatchQueue>,
-        userDefaults: UserDefaultsClient,
-        storeKitClient: StoreKitClient,
         shareSheetClient: ShareSheetClient,
-        emailClient: EmailClient,
-        cloudKitClient: CloudKitClient
+        storeKitClient: StoreKitClient,
+        uiApplicationClient: UIApplicationClient,
+        uiUserInterfaceStyleClient: UIUserInterfaceStyleClient,
+        userDefaults: UserDefaultsClient
     ) {
-        self.applicationClient = applicationClient
-        self.uiUserInterfaceStyleClient = uiUserInterfaceStyleClient
+        self.cloudKitClient = cloudKitClient
+        self.emailClient = emailClient
         self.fileClient = fileClient
         self.mainQueue = mainQueue
-        self.userDefaults = userDefaults
-        self.storeKitClient = storeKitClient
         self.shareSheetClient = shareSheetClient
-        self.emailClient = emailClient
-        self.cloudKitClient = cloudKitClient
+        self.storeKitClient = storeKitClient
+        self.uiApplicationClient = uiApplicationClient
+        self.userDefaults = userDefaults
+        self.uiUserInterfaceStyleClient = uiUserInterfaceStyleClient
     }
     
-    public var applicationClient: UIApplicationClient
-    public var uiUserInterfaceStyleClient: UIUserInterfaceStyleClient
+    public var cloudKitClient: CloudKitClient
+    public var emailClient: EmailClient
     public var fileClient: FileClient
     public var mainQueue: AnySchedulerOf<DispatchQueue>
-    public var userDefaults: UserDefaultsClient
-    public var storeKitClient: StoreKitClient
     public var shareSheetClient: ShareSheetClient
-    public var emailClient: EmailClient
-    public var cloudKitClient: CloudKitClient
+    public var storeKitClient: StoreKitClient
+    public var uiApplicationClient: UIApplicationClient
+    public var uiUserInterfaceStyleClient: UIUserInterfaceStyleClient
+    public var userDefaults: UserDefaultsClient
 }
 
 public let userSettingsReducer = UserSettingsReducer
@@ -116,7 +116,7 @@ public let userSettingsReducer = UserSettingsReducer
         return .concatenate(
             environment.userDefaults.clear()
                 .fireAndForget(),
-            environment.applicationClient.exit()
+            environment.uiApplicationClient.exit()
                 .fireAndForget()
         )
         
@@ -132,13 +132,13 @@ public let userSettingsReducer = UserSettingsReducer
             .fireAndForget()
         
     case .binding(\.$appIcon):
-        return environment.applicationClient
+        return environment.uiApplicationClient
             .setAlternateIconName(state.appIcon?.rawValue)
             .fireAndForget()
         
     case .onAppear:
-        state.supportsAlternativeIcon = environment.applicationClient.supportsAlternateIcons()
-        state.appIcon = environment.applicationClient.alternateIconName()
+        state.supportsAlternativeIcon = environment.uiApplicationClient.supportsAlternateIcons()
+        state.appIcon = environment.uiApplicationClient.alternateIconName()
             .flatMap(AppIcon.init(rawValue:))
         state.isSyncWithiCloudOn = environment.cloudKitClient.isCloudSyncEnabled
         
@@ -305,15 +305,15 @@ struct UserSettingsView_Previews: PreviewProvider {
                         initialState: UserSettingsState(),
                         reducer: userSettingsReducer,
                         environment: .init(
-                            applicationClient: .noop,
-                            uiUserInterfaceStyleClient: .noop,
+                            cloudKitClient: .noop,
+                            emailClient: .noop,
                             fileClient: .noop,
                             mainQueue: .main,
-                            userDefaults: .noop,
-                            storeKitClient: .noop,
                             shareSheetClient: .noop,
-                            emailClient: .noop,
-                            cloudKitClient: .noop
+                            storeKitClient: .noop,
+                            uiApplicationClient: .noop,
+                            uiUserInterfaceStyleClient: .noop,
+                            userDefaults: .noop
                         )
                     )
                 )
