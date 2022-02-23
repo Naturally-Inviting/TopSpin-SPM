@@ -23,6 +23,7 @@ let package = Package(
         .library(name: "DefaultSettingClient", targets: ["DefaultSettingClient"]),
         .library(name: "EmailClient", targets: ["EmailClient"]),
         .library(name: "FileClient", targets: ["FileClient"]),
+        .library(name: "HealthKitClient", targets: ["HealthKitClient"]),
         .library(name: "MatchClient", targets: ["MatchClient"]),
         .library(name: "MatchHistoryListFeature", targets: ["MatchHistoryListFeature"]),
         .library(name: "MatchSettingsClient", targets: ["MatchSettingsClient"]),
@@ -38,6 +39,7 @@ let package = Package(
         .library(name: "UserDefaultsClient", targets: ["UserDefaultsClient"]),
         .library(name: "UserSettingsFeature", targets: ["UserSettingsFeature"]),
         .library(name: "WatchConnectivityClient", targets: ["WatchConnectivityClient"]),
+        .library(name: "WorkoutFeature", targets: ["WorkoutFeature"]),
         .library(name: "World", targets: ["World"]),
     ],
     dependencies: [
@@ -88,12 +90,14 @@ let package = Package(
                 "ComposableHelpers",
                 "CoreDataStack",
                 "DefaultSettingClient",
+                "HealthKitClient",
                 "MatchClient",
                 "MatchSettingsClient",
                 "Models",
                 "SwiftUIHelpers",
                 "UserDefaultsClient",
                 "WatchConnectivityClient",
+                "WorkoutFeature",
                 "World",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "CoreDataModelDescription", package: "core-data-model-description"),
@@ -172,6 +176,13 @@ let package = Package(
             name: "FileClient",
             dependencies: [
                 "CombineHelpers",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
+        ),
+        .target(
+            name: "HealthKitClient",
+            dependencies: [
+                "World",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ]
         ),
@@ -293,6 +304,15 @@ let package = Package(
         .target(
             name: "WatchConnectivityClient",
             dependencies: [
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ]
+        ),
+        .target(
+            name: "WorkoutFeature",
+            dependencies: [
+                "HealthKitClient",
+                "SwiftUIHelpers",
+                "World",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ]
         ),

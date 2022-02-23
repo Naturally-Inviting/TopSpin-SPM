@@ -13,7 +13,7 @@ struct TopSpinApp: App {
     init() {
         self.store = Store(
             initialState: WatchAppState(),
-            reducer: watchAppCoreReducer.debug(),
+            reducer: watchCoreReducer.debug(),
             environment: .live
         )
 

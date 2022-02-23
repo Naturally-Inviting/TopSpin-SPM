@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		CE1E01E227C5C37F007F5955 /* WatchAppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = CE1E01E127C5C37F007F5955 /* WatchAppFeature */; };
+		CE1E01E427C6A541007F5955 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE1E01E327C6A541007F5955 /* HealthKit.framework */; };
 		CE7C5F8827BA007700C8978D /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE7C5F8727BA007700C8978D /* CloudKit.framework */; };
 		CE7C5F8B27BA00B300C8978D /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE7C5F8A27BA00B300C8978D /* CloudKit.framework */; };
 		CEE85FA3278D23A700EC374E /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = CEE85FA2278D23A700EC374E /* AppFeature */; };
@@ -67,6 +68,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CE1E01E327C6A541007F5955 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS8.3.sdk/System/Library/Frameworks/HealthKit.framework; sourceTree = DEVELOPER_DIR; };
 		CE7C5F8627BA006F00C8978D /* TopSpin.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TopSpin.entitlements; sourceTree = "<group>"; };
 		CE7C5F8727BA007700C8978D /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		CE7C5F8927BA009F00C8978D /* TopSpinWatch WatchKit Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "TopSpinWatch WatchKit Extension.entitlements"; sourceTree = "<group>"; };
@@ -101,6 +103,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CE1E01E427C6A541007F5955 /* HealthKit.framework in Frameworks */,
 				CE7C5F8B27BA00B300C8978D /* CloudKit.framework in Frameworks */,
 				CE1E01E227C5C37F007F5955 /* WatchAppFeature in Frameworks */,
 			);
@@ -121,6 +124,7 @@
 		CEE85FA1278D23A700EC374E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CE1E01E327C6A541007F5955 /* HealthKit.framework */,
 				CE7C5F8A27BA00B300C8978D /* CloudKit.framework */,
 				CE7C5F8727BA007700C8978D /* CloudKit.framework */,
 			);
@@ -396,6 +400,7 @@
 				INFOPLIST_FILE = "TopSpinWatch WatchKit Extension/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "TopSpinWatch WatchKit Extension";
 				INFOPLIST_KEY_CLKComplicationPrincipalClass = TopSpinWatch_WatchKit_Extension.ComplicationController;
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Workouts tracked by MyWorkouts on Apple Watch will be saved to HealthKit.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -428,6 +433,7 @@
 				INFOPLIST_FILE = "TopSpinWatch WatchKit Extension/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "TopSpinWatch WatchKit Extension";
 				INFOPLIST_KEY_CLKComplicationPrincipalClass = TopSpinWatch_WatchKit_Extension.ComplicationController;
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Workouts tracked by MyWorkouts on Apple Watch will be saved to HealthKit.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

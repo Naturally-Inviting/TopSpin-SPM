@@ -1,20 +1,25 @@
 import ComposableArchitecture
-import WatchConnectivityClient
+import HealthKitClient
 import SwiftUI
+import WatchConnectivityClient
+import WorkoutFeature
 
-public typealias AppCoreReducer = Reducer<WatchAppState, WatchAppAction, WatchEnvironment>
+public typealias WatchCoreReducer = Reducer<WatchAppState, WatchAppAction, WatchEnvironment>
 
 public struct WatchAppState: Equatable {
     public init(
         selectedTabIndex: Int = 2,
-        watchConnectivityState: WatchConnectivityState = .init()
+        watchConnectivityState: WatchConnectivityState = .init(),
+        workoutState: WorkoutState = .init()
     ) {
         self.selectedTabIndex = selectedTabIndex
         self.watchConnectivityState = watchConnectivityState
+        self.workoutState = workoutState
     }
     
     @BindableState public var selectedTabIndex: Int
     public var watchConnectivityState: WatchConnectivityState
+    public var workoutState: WorkoutState
 }
 
 public enum WatchAppAction: BindableAction {
@@ -24,17 +29,22 @@ public enum WatchAppAction: BindableAction {
     case setWatchAppInstalled(Bool)
     case setWCSessionSupported(Bool)
     case watchConnectivity(Result<WatchConnectivityClient.Action, WatchConnectivityClient.Failure>)
+    
+    case workout(WorkoutAction)
 }
 
 public struct WatchEnvironment {
     public init(
+        healthKitClient: HealthKitClient,
         mainQueue: AnySchedulerOf<DispatchQueue>,
         watchConnectivityClient: WatchConnectivityClient
     ) {
+        self.healthKitClient = healthKitClient
         self.mainQueue = mainQueue
         self.watchConnectivityClient = watchConnectivityClient
     }
     
+    var healthKitClient: HealthKitClient
     var mainQueue: AnySchedulerOf<DispatchQueue>
     var watchConnectivityClient: WatchConnectivityClient
 }
@@ -42,13 +52,14 @@ public struct WatchEnvironment {
 extension WatchEnvironment {
     public static var live: Self {
         Self(
+            healthKitClient: .live,
             mainQueue: .main,
             watchConnectivityClient: .live
         )
     }
 }
 
-public let watchAppCoreReducer = AppCoreReducer
+private let reducer = WatchCoreReducer
 { state, action, environment in
     struct WatchConnectivityId: Hashable {}
 
@@ -84,3 +95,19 @@ public let watchAppCoreReducer = AppCoreReducer
     }
 }
 .binding()
+
+public let watchCoreReducer: WatchCoreReducer =
+.combine(
+    workoutReducer
+        .pullback(
+            state: \.workoutState,
+            action: /WatchAppAction.workout,
+            environment: {
+                WorkoutEnvironment(
+                    healthKitClient: $0.healthKitClient,
+                    mainQueue: $0.mainQueue
+                )
+            }
+        ),
+    reducer
+)
