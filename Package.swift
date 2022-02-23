@@ -12,6 +12,7 @@ let package = Package(
     products: [
         .library(name: "AppFeature", targets: ["AppFeature"]),
         .library(name: "WatchAppFeature", targets: ["WatchAppFeature"]),
+        .library(name: "ActiveMatchFeature", targets: ["ActiveMatchFeature"]),
         .library(name: "AddMatchFeature", targets: ["AddMatchFeature"]),
         .library(name: "AppDelegateFeature", targets: ["AppDelegateFeature"]),
         .library(name: "CloudKitClient", targets: ["CloudKitClient"]),
@@ -87,6 +88,7 @@ let package = Package(
         .target(
             name: "WatchAppFeature",
             dependencies: [
+                "ActiveMatchFeature",
                 "ComposableHelpers",
                 "CoreDataStack",
                 "DefaultSettingClient",
@@ -101,6 +103,14 @@ let package = Package(
                 "World",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "CoreDataModelDescription", package: "core-data-model-description"),
+            ]
+        ),
+        .target(
+            name: "ActiveMatchFeature",
+            dependencies: [
+                "ComposableHelpers",
+                "World",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
         ),
         .target(

@@ -4,26 +4,15 @@ import ComposableArchitecture
 import HealthKit
 import World
 
-struct HealthStatistic {
-    var type: HKSampleType
-    var value: Double
-}
-
-extension HealthStatistic {
-    init(rawValue: HKStatistics) {
-        self.type = HKQuantityType.quantityType(forIdentifier: .heartRate)!
-        self.value = 10
-    }
-}
-
 public struct HealthKitClient {
     public var requestAuthorization: (AnyHashable, Set<HKSampleType>?, Set<HKObjectType>?) -> Effect<Action, Never>
     public var start: (AnyHashable, HKWorkoutActivityType, HKWorkoutSessionLocationType) -> Effect<Action, Failure>
-//    public var pause: () -> Effect<Never, Never>
+    public var pause: (AnyHashable) -> Effect<Never, Never>
     
 //    public var end: () -> Effect<Never, Never>
-//    public var resume: () -> Effect<Never, Never>
-//    public var reset: () -> Effect<Never, Never>
+    public var resume: (AnyHashable) -> Effect<Never, Never>
+    public var end: (AnyHashable) -> Effect<Never, Never>
+    public var reset: (AnyHashable) -> Effect<Never, Never>
 
     
     public enum Action {
@@ -94,6 +83,7 @@ private class HealthKitDelegate: NSObject, HKWorkoutSessionDelegate, HKLiveWorko
     }
     
     func workoutBuilder(_ workoutBuilder: HKLiveWorkoutBuilder, didCollectDataOf collectedTypes: Set<HKSampleType>) {
+        guard session.state == .running else { return }
         self.didCollectData(workoutBuilder, collectedTypes)
     }
     
@@ -143,12 +133,28 @@ extension HealthKitClient {
                     delegate.session.startActivity(with: date)
                     delegate.builder.beginCollection(withStart: date) { didSucced, error in
                         // TODO: See if this closure is needed.
-                        print(error)
+                        print(error as Any)
                     }
                     
                     return AnyCancellable {
                         dependencies[id] = nil
                     }
+                }
+            }, pause: { id in
+                .fireAndForget {
+                    dependencies[id]?.session.pause()
+                }
+            }, resume: { id in
+                .fireAndForget {
+                    dependencies[id]?.session.resume()
+                }
+            }, end: { id in
+                .fireAndForget {
+                    dependencies[id]?.session.end()
+                }
+            }, reset: { id in
+                .fireAndForget {
+                    dependencies[id] = nil
                 }
             }
         )

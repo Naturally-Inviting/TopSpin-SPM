@@ -25,15 +25,17 @@ public struct WorkoutState: Equatable {
         self.viewInitialized = viewInitialized
     }
     
-    
+    var workoutState: HKWorkoutSessionState = .notStarted
     var activeCalories: Int
-    var elapsedSeconds: Int
     var heartRate: Int
     var heartRateAverage: Int
     var heartRateMax: Int
     var heartRateMin: Int
     var viewInitialized: Bool
     
+    // Timer
+    var isTimerActive = false
+    var elapsedSeconds = 0
     
     var foramttedSecondsString: String {
         let elapsed: (h: Int, m: Int, s: Int) = (elapsedSeconds / 3600, (elapsedSeconds % 3600) / 60, (elapsedSeconds % 3600) % 60)
@@ -44,9 +46,18 @@ public struct WorkoutState: Equatable {
 public enum WorkoutAction {
     case viewDidAppear
     case onDisappear
+    
+    case start
+    case reset
+    case resume
+    case pause
+    
     case cancelWorkout
     case healthKitAuth(Result<HealthKitClient.Action, Never>)
     case healthKit(Result<HealthKitClient.Action, HealthKitClient.Failure>)
+    
+    // Timer
+    case timerTicked
 }
 
 public struct WorkoutEnvironment {
@@ -66,8 +77,47 @@ public let workoutReducer = WorkoutReducer
 { state, action, environment in
     struct WorkoutId: Hashable {}
     struct WorkoutCancellation: Hashable {}
-    
+    struct TimerId: Hashable {}
+
     switch action {
+    case .start:
+        return environment.healthKitClient.start(WorkoutId(), .tableTennis, .indoor)
+            .receive(on: environment.mainQueue)
+            .catchToEffect(WorkoutAction.healthKit)
+            .cancellable(id: WorkoutCancellation())
+        
+    case .resume:
+        return environment.healthKitClient.resume(WorkoutId())
+            .fireAndForget()
+        
+    case .pause:
+        return environment.healthKitClient.pause(WorkoutId())
+            .fireAndForget()
+        
+    case .reset:
+        state.heartRate = 0
+        state.heartRateAverage = 0
+        state.heartRateMax = 0
+        state.heartRateMin = 0
+        state.activeCalories = 0
+        state.elapsedSeconds = 0
+        
+        return Effect(value: .cancelWorkout).eraseToEffect()
+        
+    case .cancelWorkout:
+        state.workoutState = .notStarted
+        
+        return .merge(
+            environment.healthKitClient.reset(WorkoutId())
+                .fireAndForget(),
+            .cancel(id: WorkoutCancellation()),
+            .cancel(id: TimerId())
+        )
+        
+    case .timerTicked:
+        state.elapsedSeconds += 1
+        return .none
+        
     case let .healthKit(.success(.didCollectData(workoutBuilder, samples))):
         for type in samples {
             guard let quantityType = type as? HKQuantityType else { return .none }
@@ -107,6 +157,19 @@ public let workoutReducer = WorkoutReducer
         }
         
         return .none
+        
+    case let .healthKit(.success(.workoutSessionDidChange(toState, fromState))):
+        state.workoutState = toState
+        
+        return state.workoutState == .running
+          ? Effect.timer(
+            id: TimerId(),
+            every: 1,
+            tolerance: .zero,
+            on: environment.mainQueue.animation(.interpolatingSpring(stiffness: 3000, damping: 40))
+          )
+          .map { _ in WorkoutAction.timerTicked }
+          : Effect.cancel(id: TimerId())
         
     case let .healthKitAuth(.success(.authorizationDidChange(isAuthorized))):
         guard isAuthorized else { return .none }
@@ -161,6 +224,14 @@ public struct WorkoutView: View {
                 heartRateAverage: viewStore.heartRateAverage,
                 heartRateMax: viewStore.heartRateMax,
                 heartRateMin: viewStore.heartRateMin,
+                pauseLabel: viewStore.workoutState == .paused ? "Resume" : "Pause",
+                pauseAction: {
+                    if viewStore.workoutState == .paused {
+                        viewStore.send(.resume)
+                    } else {
+                        viewStore.send(.pause)
+                    }
+                },
                 cancelAction: {
                     viewStore.send(.cancelWorkout)
                 }
@@ -180,7 +251,8 @@ struct MatchWorkoutView: View {
     var heartRateAverage: Int
     var heartRateMax: Int
     var heartRateMin: Int
-    
+    var pauseLabel: String
+    var pauseAction: () -> Void
     var cancelAction: () -> Void
 
     var body: some View {
@@ -243,6 +315,9 @@ struct MatchWorkoutView: View {
                     .foregroundColor(.secondary)
                     .padding(.vertical)
                     
+                    Button(pauseLabel, action: pauseAction)
+                        .padding(.top)
+                    
                     Button("Cancel", action: cancelAction)
                         .buttonStyle(BorderedButtonStyle(tint: .red))
                         .padding(.top)
@@ -264,6 +339,8 @@ struct MatchWorkoutView_Previews: PreviewProvider {
             heartRateAverage: 120,
             heartRateMax: 140,
             heartRateMin: 100,
+            pauseLabel: "Pause",
+            pauseAction: { },
             cancelAction: { }
         )
     }

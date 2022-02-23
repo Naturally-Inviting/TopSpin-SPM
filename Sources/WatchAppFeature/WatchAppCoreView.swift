@@ -1,3 +1,4 @@
+import ActiveMatchFeature
 import ComposableArchitecture
 import SwiftUI
 import WorkoutFeature
@@ -23,6 +24,7 @@ public struct WatchAppCoreView: View {
 //                .tag(3)
 //        }
         
-        WorkoutView(store: store.scope(state: \.workoutState, action: WatchAppAction.workout))
+//        WorkoutView(store: store.scope(state: \.workoutState, action: WatchAppAction.workout))
+        ActiveMatchView(store: store.scope(state: \.activeMatchState, action: WatchAppAction.activeMatch))
     }
 }

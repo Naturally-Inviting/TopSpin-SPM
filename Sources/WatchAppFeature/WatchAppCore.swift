@@ -1,3 +1,4 @@
+import ActiveMatchFeature
 import ComposableArchitecture
 import HealthKitClient
 import SwiftUI
@@ -20,6 +21,7 @@ public struct WatchAppState: Equatable {
     @BindableState public var selectedTabIndex: Int
     public var watchConnectivityState: WatchConnectivityState
     public var workoutState: WorkoutState
+    public var activeMatchState: ActiveMatchState = .init()
 }
 
 public enum WatchAppAction: BindableAction {
@@ -31,6 +33,7 @@ public enum WatchAppAction: BindableAction {
     case watchConnectivity(Result<WatchConnectivityClient.Action, WatchConnectivityClient.Failure>)
     
     case workout(WorkoutAction)
+    case activeMatch(ActiveMatchAction)
 }
 
 public struct WatchEnvironment {
@@ -107,6 +110,14 @@ public let watchCoreReducer: WatchCoreReducer =
                     healthKitClient: $0.healthKitClient,
                     mainQueue: $0.mainQueue
                 )
+            }
+        ),
+    activeMatchReducer
+        .pullback(
+            state: \.activeMatchState,
+            action: /WatchAppAction.activeMatch,
+            environment: { _ in 
+                ActiveMatchEnvironment()
             }
         ),
     reducer
