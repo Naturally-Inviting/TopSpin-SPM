@@ -1,7 +1,9 @@
 import ComposableArchitecture
+import DefaultSettingClient
 import MatchSettingsClient
 import Models
 import SwiftUI
+import World
 
 public typealias AddMatchSettingsReducer = Reducer<AddMatchSettingsState, AddMatchSettingsAction, AddMatchSettingsEnvironment>
 
@@ -43,17 +45,21 @@ public struct AddMatchSettingsState: Equatable {
 public enum AddMatchSettingsAction: Equatable, BindableAction {
     case binding(BindingAction<AddMatchSettingsState>)
     case saveSettings
+    case saveSettingsResponse(Result<MatchSetting, MatchSettingsClient.Failure>)
 }
 
 public struct AddMatchSettingsEnvironment {
     public init(
-        mainQueue: AnySchedulerOf<DispatchQueue> = .main,
+        defaultSettingsClient: DefaultSettingClient,
+        mainQueue: AnySchedulerOf<DispatchQueue>,
         settingsClient: MatchSettingsClient
     ) {
+        self.defaultSettingsClient = defaultSettingsClient
         self.mainQueue = mainQueue
         self.settingsClient = settingsClient
     }
     
+    var defaultSettingsClient: DefaultSettingClient
     var mainQueue: AnySchedulerOf<DispatchQueue>
     var settingsClient: MatchSettingsClient
 }
@@ -62,7 +68,27 @@ public let addMatchSettingsReducer = AddMatchSettingsReducer
 { state, action, environment in
     switch action {
     case .saveSettings:
-        return .none
+        guard !state.settingsName.isEmpty
+        else { return .none }
+        
+        let settings = MatchSetting(
+            id: Current.uuid(),
+            createdDate: Current.date(),
+            isTrackingWorkout: state.trackWorkoutData,
+            isWinByTwo: state.winByTwo,
+            name: state.settingsName,
+            scoreLimit: state.scoreLimit,
+            serveInterval: state.serveInterval
+        )
+        
+        return .merge(
+            environment.settingsClient.create(settings)
+                .receive(on: environment.mainQueue)
+                .catchToEffect(AddMatchSettingsAction.saveSettingsResponse),
+            environment.defaultSettingsClient.setDefault(settings.id)
+                .eraseToEffect()
+                .fireAndForget()
+        )
     default:
         return .none
     }
@@ -149,6 +175,11 @@ struct AddMatchSettingsView_Previews: PreviewProvider {
                     initialState: AddMatchSettingsState(),
                     reducer: addMatchSettingsReducer,
                     environment: .init(
+                        defaultSettingsClient: .init(
+                            defaultId: { nil },
+                            setDefault: { _ in .none }
+                        ),
+                        mainQueue: .main,
                         settingsClient: .init(
                             fetch: { .none },
                             create: { _ in .none },

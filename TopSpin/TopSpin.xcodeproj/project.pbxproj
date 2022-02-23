@@ -81,7 +81,7 @@
 		CEE85FB9278D28CA00EC374E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CEE85FBC278D28CA00EC374E /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		CEE85FBE278D28CA00EC374E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		CEFC46AA2788FD010005216B /* TopSpin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TopSpin.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CEFC46AA2788FD010005216B /* TopSpinSPM.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TopSpinSPM.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEFC46AD2788FD010005216B /* TopSpinApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopSpinApp.swift; sourceTree = "<group>"; };
 		CEFC46AF2788FD010005216B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		CEFC46B12788FD030005216B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -174,7 +174,7 @@
 		CEFC46AB2788FD010005216B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				CEFC46AA2788FD010005216B /* TopSpin.app */,
+				CEFC46AA2788FD010005216B /* TopSpinSPM.app */,
 				CEE85FA6278D28C700EC374E /* TopSpinWatch.app */,
 				CEE85FAE278D28C900EC374E /* TopSpinWatch WatchKit Extension.appex */,
 			);
@@ -274,7 +274,7 @@
 				CEE85FA2278D23A700EC374E /* AppFeature */,
 			);
 			productName = TopSpin;
-			productReference = CEFC46AA2788FD010005216B /* TopSpin.app */;
+			productReference = CEFC46AA2788FD010005216B /* TopSpinSPM.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -639,7 +639,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.willbrandin.dev.TopSpinSPM;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = TopSpinSPM;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -670,7 +670,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.willbrandin.dev.TopSpinSPM;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = TopSpinSPM;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

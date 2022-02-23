@@ -1,4 +1,5 @@
 import CoreData
+import CloudKit
 
 public class CoreDataStack {
             
@@ -9,7 +10,8 @@ public class CoreDataStack {
     }
 
     public init(model: NSManagedObjectModel, inMemory: Bool = false) {
-        container = Self.setupCloudKitContainer(model: model, withSync: true, inMemory: inMemory)
+        let cloudSync = NSUbiquitousKeyValueStore.default.bool(forKey: "iCloudSyncKey")
+        container = Self.setupCloudKitContainer(model: model, withSync: cloudSync, inMemory: inMemory)
     }
     
     public static func setupContainer(model: NSManagedObjectModel, withSync iCloudSync: Bool) -> NSPersistentCloudKitContainer {
@@ -17,7 +19,7 @@ public class CoreDataStack {
     }
     
     internal static func setupCloudKitContainer(model: NSManagedObjectModel, withSync: Bool, inMemory: Bool = false) -> NSPersistentCloudKitContainer {
-        let container = NSPersistentCloudKitContainer(name: "Cadence", managedObjectModel: model)
+        let container = NSPersistentCloudKitContainer(name: "TopSpinSPM", managedObjectModel: model)
        
         if inMemory {
             container.persistentStoreDescriptions.first!.url = URL(fileURLWithPath: "/dev/null")

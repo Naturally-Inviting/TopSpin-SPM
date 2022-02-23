@@ -13,6 +13,7 @@ import SwiftUIHelpers
 import UIApplicationClient
 import UIUserInterfaceStyleClient
 import UserDefaultsClient
+import World
 
 public typealias UserSettingsReducer = Reducer<UserSettingsState, UserSettingsAction, UserSettingsEnvironment>
 
@@ -140,8 +141,13 @@ private let reducer = UserSettingsReducer
         
     case let .iCloudSyncToggled(isOn):
         state.isSyncWithiCloudOn = isOn
-        return environment.cloudKitClient.setCloudSync(isOn)
-            .fireAndForget()
+        return .merge(
+            environment.cloudKitClient.setCloudSync(isOn)
+                .fireAndForget(),
+            .fireAndForget {
+                Current.setupContainer(isOn)
+            }
+        )
         
     case .binding(\.$isMatchSettingsNavigationActive):
         if state.isMatchSettingsNavigationActive {

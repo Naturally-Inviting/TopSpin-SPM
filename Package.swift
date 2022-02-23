@@ -6,8 +6,7 @@ import PackageDescription
 let package = Package(
     name: "TopSpin",
     platforms: [
-        .iOS(.v15),
-        .watchOS(.v8)
+        .iOS(.v15)
     ],
     products: [
         .library(name: "AddMatchFeature", targets: ["AddMatchFeature"]),

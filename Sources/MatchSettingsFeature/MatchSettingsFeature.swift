@@ -67,6 +67,12 @@ public struct MatchSettingsEnvironment {
 private let reducer = MatchSettingsReducer
 { state, action, environment in
     switch action {
+    case let .addMatchSettings(.saveSettingsResponse(.success(settings))):
+        state.matchSettings.append(settings)
+        state.isAddSettingsNavigationActive = false
+        state.addSettingsState = nil
+        return .none
+        
     case .setAddSettingsNavigationActive(isActive: false):
         state.addSettingsState = nil
         state.isAddSettingsNavigationActive = false
@@ -106,6 +112,7 @@ public let matchSettingsReducer: MatchSettingsReducer =
             action: /MatchSettingsAction.addMatchSettings,
             environment: {
                 AddMatchSettingsEnvironment(
+                    defaultSettingsClient: $0.defaultSettingsClient,
                     mainQueue: $0.mainQueue,
                     settingsClient: $0.settingsClient
                 )
@@ -200,7 +207,7 @@ struct MatchSettingsView_Previews: PreviewProvider {
                     ),
                     reducer: matchSettingsReducer,
                     environment: .init(
-                        defaultSettingsClient: .live,
+                        defaultSettingsClient: .live(),
                         mainQueue: .main,
                         settingsClient: .init(
                             fetch: {

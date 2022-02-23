@@ -64,7 +64,7 @@ public extension AppCoreEnvironment {
     static var live: Self {
         Self(
             cloudKitClient: .live,
-            defaultSettingsClient: .live,
+            defaultSettingsClient: .live(),
             emailClient: .live,
             fileClient: .live,
             mainQueue: .main,

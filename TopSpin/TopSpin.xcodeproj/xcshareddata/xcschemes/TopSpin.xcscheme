@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "CEFC46A92788FD010005216B"
-               BuildableName = "TopSpin.app"
+               BuildableName = "TopSpinSPM.app"
                BlueprintName = "TopSpin"
                ReferencedContainer = "container:TopSpin.xcodeproj">
             </BuildableReference>
@@ -45,7 +45,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CEFC46A92788FD010005216B"
-            BuildableName = "TopSpin.app"
+            BuildableName = "TopSpinSPM.app"
             BlueprintName = "TopSpin"
             ReferencedContainer = "container:TopSpin.xcodeproj">
          </BuildableReference>
@@ -62,7 +62,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CEFC46A92788FD010005216B"
-            BuildableName = "TopSpin.app"
+            BuildableName = "TopSpinSPM.app"
             BlueprintName = "TopSpin"
             ReferencedContainer = "container:TopSpin.xcodeproj">
          </BuildableReference>
