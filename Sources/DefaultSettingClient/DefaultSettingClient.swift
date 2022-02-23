@@ -25,6 +25,7 @@ extension DefaultSettingClient {
             defaultId: {
                 guard let savedUserDefault = userDefaults.string(forKey: defaultMatchSettingsKey)
                 else { return nil }
+                #if os(iOS)
                 let savedCloudDefault = NSUbiquitousKeyValueStore.default.string(forKey: defaultMatchSettingsKey)
                 
                 // If there is no value in the cloud, then save it.
@@ -36,6 +37,7 @@ extension DefaultSettingClient {
                 if savedUserDefault != savedCloudDefault && savedCloudDefault != nil {
                     userDefaults.setValue(savedCloudDefault, forKey: defaultMatchSettingsKey)
                 }
+                #endif
                 
                 guard let id = UUID(uuidString: savedUserDefault)
                 else { return nil }
@@ -45,7 +47,9 @@ extension DefaultSettingClient {
             setDefault: { id in
                 .fireAndForget {
                     userDefaults.setValue(id.uuidString, forKey: defaultMatchSettingsKey)
+                    #if os(iOS)
                     NSUbiquitousKeyValueStore.default.set(id.uuidString, forKey: defaultMatchSettingsKey)
+                    #endif
                 }
             }
         )

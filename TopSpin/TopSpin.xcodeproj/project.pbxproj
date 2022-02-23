@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CE1E01E227C5C37F007F5955 /* WatchAppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = CE1E01E127C5C37F007F5955 /* WatchAppFeature */; };
 		CE7C5F8827BA007700C8978D /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE7C5F8727BA007700C8978D /* CloudKit.framework */; };
 		CE7C5F8B27BA00B300C8978D /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE7C5F8A27BA00B300C8978D /* CloudKit.framework */; };
 		CEE85FA3278D23A700EC374E /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = CEE85FA2278D23A700EC374E /* AppFeature */; };
 		CEE85FA9278D28C900EC374E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CEE85FA8278D28C900EC374E /* Assets.xcassets */; };
 		CEE85FAF278D28C900EC374E /* TopSpinWatch WatchKit Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = CEE85FAE278D28C900EC374E /* TopSpinWatch WatchKit Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		CEE85FB4278D28C900EC374E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE85FB3278D28C900EC374E /* ContentView.swift */; };
 		CEE85FB6278D28C900EC374E /* TopSpinApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE85FB5278D28C900EC374E /* TopSpinApp.swift */; };
 		CEE85FB8278D28C900EC374E /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE85FB7278D28C900EC374E /* ComplicationController.swift */; };
 		CEE85FBA278D28CA00EC374E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CEE85FB9278D28CA00EC374E /* Assets.xcassets */; };
@@ -75,7 +75,6 @@
 		CEE85FA6278D28C700EC374E /* TopSpinWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TopSpinWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEE85FA8278D28C900EC374E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CEE85FAE278D28C900EC374E /* TopSpinWatch WatchKit Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "TopSpinWatch WatchKit Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
-		CEE85FB3278D28C900EC374E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		CEE85FB5278D28C900EC374E /* TopSpinApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopSpinApp.swift; sourceTree = "<group>"; };
 		CEE85FB7278D28C900EC374E /* ComplicationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
 		CEE85FB9278D28CA00EC374E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -103,6 +102,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CE7C5F8B27BA00B300C8978D /* CloudKit.framework in Frameworks */,
+				CE1E01E227C5C37F007F5955 /* WatchAppFeature in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -139,7 +139,6 @@
 			isa = PBXGroup;
 			children = (
 				CE7C5F8927BA009F00C8978D /* TopSpinWatch WatchKit Extension.entitlements */,
-				CEE85FB3278D28C900EC374E /* ContentView.swift */,
 				CEE85FB5278D28C900EC374E /* TopSpinApp.swift */,
 				CEE85FB7278D28C900EC374E /* ComplicationController.swift */,
 				CEE85FB9278D28CA00EC374E /* Assets.xcassets */,
@@ -250,6 +249,7 @@
 			);
 			name = "TopSpinWatch WatchKit Extension";
 			packageProductDependencies = (
+				CE1E01E127C5C37F007F5955 /* WatchAppFeature */,
 			);
 			productName = "TopSpinWatch WatchKit Extension";
 			productReference = CEE85FAE278D28C900EC374E /* TopSpinWatch WatchKit Extension.appex */;
@@ -352,7 +352,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CEE85FB4278D28C900EC374E /* ContentView.swift in Sources */,
 				CEE85FB6278D28C900EC374E /* TopSpinApp.swift in Sources */,
 				CEE85FB8278D28C900EC374E /* ComplicationController.swift in Sources */,
 			);
@@ -719,6 +718,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		CE1E01E127C5C37F007F5955 /* WatchAppFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = WatchAppFeature;
+		};
 		CEE85FA2278D23A700EC374E /* AppFeature */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AppFeature;

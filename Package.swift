@@ -6,12 +6,14 @@ import PackageDescription
 let package = Package(
     name: "TopSpin",
     platforms: [
-        .iOS(.v15)
+        .iOS(.v15),
+        .watchOS(.v8)
     ],
     products: [
+        .library(name: "AppFeature", targets: ["AppFeature"]),
+        .library(name: "WatchAppFeature", targets: ["WatchAppFeature"]),
         .library(name: "AddMatchFeature", targets: ["AddMatchFeature"]),
         .library(name: "AppDelegateFeature", targets: ["AppDelegateFeature"]),
-        .library(name: "AppFeature", targets: ["AppFeature"]),
         .library(name: "CloudKitClient", targets: ["CloudKitClient"]),
         .library(name: "CombineHelpers", targets: ["CombineHelpers"]),
         .library(name: "ComposableHelpers", targets: ["ComposableHelpers"]),
@@ -54,30 +56,12 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "AddMatchFeature",
-            dependencies: [
-                "MatchClient",
-                "Models",
-                "WatchConnectivityClient",
-                "World",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-            ]
-        ),
-        .target(
-            name: "AppDelegateFeature",
-            dependencies: [
-                "FileClient",
-                "UserSettingsFeature",
-                "UIUserInterfaceStyleClient",
-                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
-            ]
-        ),
-        .target(
             name: "AppFeature",
             dependencies: [
                 "AppDelegateFeature",
                 "CloudKitClient",
                 "ComposableHelpers",
+                "CoreDataStack",
                 "DefaultSettingClient",
                 "EmailClient",
                 "FileClient",
@@ -96,6 +80,42 @@ let package = Package(
                 "World",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "CoreDataModelDescription", package: "core-data-model-description"),
+            ]
+        ),
+        .target(
+            name: "WatchAppFeature",
+            dependencies: [
+                "ComposableHelpers",
+                "CoreDataStack",
+                "DefaultSettingClient",
+                "MatchClient",
+                "MatchSettingsClient",
+                "Models",
+                "SwiftUIHelpers",
+                "UserDefaultsClient",
+                "WatchConnectivityClient",
+                "World",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+                .product(name: "CoreDataModelDescription", package: "core-data-model-description"),
+            ]
+        ),
+        .target(
+            name: "AddMatchFeature",
+            dependencies: [
+                "MatchClient",
+                "Models",
+                "WatchConnectivityClient",
+                "World",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+            ]
+        ),
+        .target(
+            name: "AppDelegateFeature",
+            dependencies: [
+                "FileClient",
+                "UserSettingsFeature",
+                "UIUserInterfaceStyleClient",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
         ),
         .target(
@@ -128,9 +148,7 @@ let package = Package(
             ]
         ),
         .target(
-            name: "CoreDataStack",
-            dependencies: [
-            ]
+            name: "CoreDataStack"
         ),
         .target(
             name: "DateExtension",

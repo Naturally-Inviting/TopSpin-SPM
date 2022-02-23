@@ -10,8 +10,12 @@ public class CoreDataStack {
     }
 
     public init(model: NSManagedObjectModel, inMemory: Bool = false) {
+        #if os(watchOS)
+        container = Self.setupCloudKitContainer(model: model, withSync: true, inMemory: inMemory)
+        #else
         let cloudSync = NSUbiquitousKeyValueStore.default.bool(forKey: "iCloudSyncKey")
         container = Self.setupCloudKitContainer(model: model, withSync: cloudSync, inMemory: inMemory)
+        #endif
     }
     
     public static func setupContainer(model: NSManagedObjectModel, withSync iCloudSync: Bool) -> NSPersistentCloudKitContainer {
