@@ -27,11 +27,13 @@ let package = Package(
         .library(name: "HealthKitClient", targets: ["HealthKitClient"]),
         .library(name: "MatchClient", targets: ["MatchClient"]),
         .library(name: "MatchHistoryListFeature", targets: ["MatchHistoryListFeature"]),
+        .library(name: "MatchSeriesFeature", targets: ["MatchSeriesFeature"]),
         .library(name: "MatchSettingsClient", targets: ["MatchSettingsClient"]),
         .library(name: "MatchSettingsFeature", targets: ["MatchSettingsFeature"]),
         .library(name: "MatchSummaryDetailFeature", targets: ["MatchSummaryDetailFeature"]),
         .library(name: "Models", targets: ["Models"]),
         .library(name: "MonthlySummaryListFeature", targets: ["MonthlySummaryListFeature"]),
+        .library(name: "Rally", targets: ["Rally"]),
         .library(name: "ShareSheetClient", targets: ["ShareSheetClient"]),
         .library(name: "StoreKitClient", targets: ["StoreKitClient"]),
         .library(name: "SwiftUIHelpers", targets: ["SwiftUIHelpers"]),
@@ -109,6 +111,7 @@ let package = Package(
             name: "ActiveMatchFeature",
             dependencies: [
                 "ComposableHelpers",
+                "Rally",
                 "World",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
@@ -217,6 +220,15 @@ let package = Package(
             ]
         ),
         .target(
+            name: "MatchSeriesFeature",
+            dependencies: [
+                "ComposableHelpers",
+                "Rally",
+                "World",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
+            ]
+        ),
+        .target(
             name: "MatchSettingsClient",
             dependencies: [
                 "CoreDataModel",
@@ -243,8 +255,7 @@ let package = Package(
             ]
         ),
         .target(
-            name: "Models",
-            dependencies: []
+            name: "Models"
         ),
         .target(
             name: "MonthlySummaryListFeature",
@@ -255,6 +266,9 @@ let package = Package(
                 "World",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ]
+        ),
+        .target(
+            name: "Rally"
         ),
         .target(
             name: "ShareSheetClient",

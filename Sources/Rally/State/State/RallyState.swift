@@ -16,7 +16,8 @@ public struct RallyState: Equatable, Codable {
                 gameLog: [RallyGameEvent] = [RallyGameEvent](),
                 isGamePoint: Bool = false,
                 winningTeam: RallyTeam? = nil,
-                gameSettings: RallyEnvironment) {
+                gameSettings: RallyEnvironment
+    ) {
         self.serveState = serveState
         self.score = score
         self.gameState = gameState

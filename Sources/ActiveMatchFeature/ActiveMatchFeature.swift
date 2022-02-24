@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import ComposableHelpers
+import Rally
 import SwiftUI
 
 public typealias ActiveMatchReducer = Reducer<ActiveMatchState, ActiveMatchAction, ActiveMatchEnvironment>
@@ -115,8 +116,8 @@ public struct ActiveMatchView: View {
                 }
                 
                 Button("Cancel", action: { })
-                .buttonStyle(BorderedButtonStyle(tint: .red))
-                .padding(.top, 24)
+                    .buttonStyle(BorderedButtonStyle(tint: .red))
+                    .padding(.top, 24)
             }
         }
     }
