@@ -1,57 +1,87 @@
 import ComposableArchitecture
 import ComposableHelpers
+import Models
 import Rally
 import SwiftUI
+import World
 
-public typealias MatchSeriesReducer = Reducer<MatchSeriesState, MatchSeriesAction, MatchSeriesEnvironment>
+public typealias MatchSeriesReducer = Reducer<
+    MatchSeriesState,
+    MatchSeriesAction,
+    MatchSeriesEnvironment
+>
 
 extension RallyState: Identifiable {
     public var id: UUID {
-        return UUID()
+        return Current.uuid()
     }
 }
 
 extension RallyTeam: Identifiable {}
 
+struct ButtonState: Equatable {
+    var title: String
+    var color: Color
+}
+
 public struct MatchSeriesState: Equatable {
     
-    public init() {}
-    
-    static let teamA = RallyTeam(id: "teamA", teamName: "teamA")
-    static let teamB = RallyTeam(id: "teamB", teamName: "teamB")
-    static let matchSettings = RallyMatchEnvironment(
-        matchCount: 3,
-        matchSettings: .init(
-            isWinByTwo: true,
-            scoreLimit: 11,
-            serveInterval: .two,
-            teams: [teamA, teamB]
+    public init(
+        matchCount: Int,
+        matchSettings: MatchSetting
+    ) {
+        // FUTURE: - New Feature
+        let teamA = RallyTeam(id: "teamA", teamName: "You")
+        let teamB = RallyTeam(id: "teamB", teamName: "Oppnt.")
+        
+        let rallyGameSettings: RallyEnvironment = .init(
+            isWinByTwo: matchSettings.isWinByTwo,
+            scoreLimit: matchSettings.scoreLimit,
+            serveInterval: .init(rawValue: matchSettings.serveInterval)!,
+            teams: [
+                teamA,
+                teamB
+            ]
         )
-    )
-    
-    var matchSeriesState: RallyMatchState = .init(
-        matches: [
-            .init(
-                serveState: .init(servingTeam: teamA),
-                score: [teamA.id: 0, teamB.id: 0],
+        
+        self.matchEnvironment = .init(
+            matchCount: matchCount,
+            matchSettings: rallyGameSettings
+        )
+        
+        let matches: [RallyState] = (0..<matchCount).map { matchNumber in
+            RallyState(
+                serveState: RallyServeState(
+                    servingTeam: (matchNumber % 2) == 0 ? teamA : teamB // Alternating
+                ),
+                score: [
+                    teamA.id: 0,
+                    teamB.id: 0
+                ],
                 gameState: .ready,
-                gameSettings: matchSettings.matchSettings
-            ),
-            .init(
-                serveState: .init(servingTeam: teamB),
-                score: [teamA.id: 0, teamB.id: 0],
-                gameState: .ready,
-                gameSettings: matchSettings.matchSettings
-            ),
-            .init(
-                serveState: .init(servingTeam: teamA),
-                score: [teamA.id: 0, teamB.id: 0],
-                gameState: .ready,
-                gameSettings: matchSettings.matchSettings
+                gameSettings: rallyGameSettings
             )
-        ],
-        matchSettings: matchSettings
-    )
+        }
+        
+        self.matchSeriesState = .init(
+            currentMatchIndex: 0,
+            matches: matches,
+            isMatchPoint: false,
+            matchStatus: .active,
+            winningTeam: nil,
+            matchSettings: self.matchEnvironment
+        )
+        
+        self.buttonState = [
+            teamA.id: .init(title: "POINT", color: .primary),
+            teamB.id: .init(title: "POINT", color: .primary)
+        ]
+    }
+    
+    var matchEnvironment: RallyMatchEnvironment
+    var matchSeriesState: RallyMatchState
+    
+    var buttonState: [RallyTeam.ID: ButtonState]
 }
 
 public enum MatchSeriesAction {
@@ -127,30 +157,11 @@ struct RallyMatchSeriesView: View {
                             .frame(width: 10, height: 10)
                             .foregroundColor(team == gameState.serveState.servingTeam ? .green : .clear)
                         
-                        if viewStore.matchSeriesState.currentMatch.isGamePoint
-                            && viewStore.matchSeriesState.currentMatch.winningTeam == team {
-                            
-                            Button("GAME") {
-                                viewStore.send(.rally(.gameAction(.teamScored(team.id))))
-                            }
-                            .padding(4)
-                            .buttonStyle(BorderedButtonStyle(tint: .green))
-                            
-                        } else if viewStore.matchSeriesState.isMatchPoint
-                                    && viewStore.matchSeriesState.currentMatch.winningTeam == team {
-                            Button("MATCH") {
-                                viewStore.send(.rally(.gameAction(.teamScored(team.id))))
-                            }
-                            .padding(4)
-                            .buttonStyle(BorderedButtonStyle(tint: .green))
-                            
-                        } else {
-                            Button("POINT") {
-                                viewStore.send(.rally(.gameAction(.teamScored(team.id))))
-                            }
-                            .padding(4)
+                        Button(viewStore.buttonState[team.id]?.title ?? "") {
+                            viewStore.send(.rally(.gameAction(.teamScored(team.id))))
                         }
-                        
+                        .padding(4)
+                        .buttonStyle(BorderedButtonStyle(tint: viewStore.buttonState[team.id]?.color ?? .clear))
                     }
                 }
             }
@@ -170,7 +181,18 @@ struct RallyMatchSeriesView_Previews: PreviewProvider {
     static var previews: some View {
         RallyMatchSeriesView(
             store: Store(
-                initialState: MatchSeriesState(),
+                initialState: MatchSeriesState(
+                    matchCount: 5,
+                    matchSettings: .init(
+                        id: .init(),
+                        createdDate: .now,
+                        isTrackingWorkout: true,
+                        isWinByTwo: true,
+                        name: "test",
+                        scoreLimit: 11,
+                        serveInterval: 2
+                    )
+                ),
                 reducer: matchSeriesReducer,
                 environment: MatchSeriesEnvironment()
             )

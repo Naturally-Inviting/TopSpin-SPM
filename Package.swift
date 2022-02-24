@@ -223,6 +223,7 @@ let package = Package(
             name: "MatchSeriesFeature",
             dependencies: [
                 "ComposableHelpers",
+                "Models",
                 "Rally",
                 "World",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
