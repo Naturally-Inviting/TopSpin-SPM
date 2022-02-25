@@ -8,14 +8,27 @@ public typealias ActiveMatchReducer = Reducer<ActiveMatchState, ActiveMatchActio
 
 extension RallyTeam: Identifiable {}
 
-struct ButtonState: Equatable {
-    var title: String
-    var color: Color
-}
-
 public struct ActiveMatchState: Equatable {
     
-    public init(
+    struct ButtonState: Equatable {
+        var title: String
+        var color: Color
+    }
+
+    init(
+        rallyGameState: RallyState,
+        buttonState: [RallyTeam.ID: ButtonState]
+    ) {
+        self.rallyGameState = rallyGameState
+        self.buttonState = buttonState
+    }
+    
+    var rallyGameState: RallyState
+    var buttonState: [RallyTeam.ID: ButtonState]
+}
+
+public extension ActiveMatchState {
+    init(
         matchSettings: MatchSetting
     ) {
         let teamA = RallyTeam(id: "teamA", teamName: "You")
@@ -47,13 +60,10 @@ public struct ActiveMatchState: Equatable {
             teamB.id: .init(title: "POINT", color: .primary)
         ]
     }
-    
-    var rallyGameState: RallyState
-    var buttonState: [RallyTeam.ID: ButtonState]
-
 }
 
 public enum ActiveMatchAction {
+    case cancel
     case rally(RallyAction)
 }
 
@@ -93,7 +103,11 @@ public struct ActiveMatchView: View {
         self.viewStore = ViewStore(self.store)
     }
     
-    public var body: some View {
+    var matchReadyView: some View {
+        Button("Start Game", action: { viewStore.send(.rally(.statusChanged(.active))) })
+    }
+    
+    var matchActiveView: some View {
         ScrollView {
             VStack {
                 if viewStore.rallyGameState.isGamePoint {
@@ -119,12 +133,12 @@ public struct ActiveMatchView: View {
                                     .frame(width: 10, height: 10)
                                     .foregroundColor(team == viewStore.rallyGameState.serveState.servingTeam ? .green : .clear)
                                 
-                                Button(viewStore.buttonState[team.id]?.title ?? "") {
+                                Button(viewStore.buttonState[team.id]?.title ?? "hi") {
                                     viewStore.send(.rally(.teamScored(team.id)))
                                 }
                                 .padding(4)
                                 .buttonStyle(BorderedButtonStyle(
-                                    tint: viewStore.buttonState[team.id]?.color ?? .clear)
+                                    tint: viewStore.buttonState[team.id]?.color ?? .primary)
                                 )
                             }
                         }
@@ -141,23 +155,55 @@ public struct ActiveMatchView: View {
             }
         }
     }
+    
+    var matchCompleteView: some View {
+        Text("Match Over!")
+    }
+    
+    public var body: some View {
+        if viewStore.rallyGameState.gameState == .ready {
+            matchReadyView
+        } else if viewStore.rallyGameState.gameState == .complete {
+            matchCompleteView
+        } else {
+            matchActiveView
+        }
+    }
 }
 
 struct ActiveMatch_Previews: PreviewProvider {
+    static let teamA: RallyTeam = .init(id: "TeamA", teamName: "You")
+    static let teamB: RallyTeam = .init(id: "TeamB", teamName: "OPPT.")
+
     static var previews: some View {
         NavigationView {
             ActiveMatchView(
                 store: Store(
                     initialState: .init(
-                        matchSettings: .init(
-                            id: .init(),
-                            createdDate: .now,
-                            isTrackingWorkout: true,
-                            isWinByTwo: true,
-                            name: "test",
-                            scoreLimit: 11,
-                            serveInterval: 2
-                        )
+                        rallyGameState: .init(
+                            serveState: .init(servingTeam: teamA),
+                            score: [
+                                teamA.id: 0,
+                                teamB.id: 0
+                            ],
+                            gameState: .ready,
+                            gameLog: [],
+                            isGamePoint: false,
+                            winningTeam: nil,
+                            gameSettings: .init(
+                                isWinByTwo: true,
+                                scoreLimit: 11,
+                                serveInterval: .two,
+                                teams: [
+                                    teamA,
+                                    teamB
+                                ]
+                            )
+                        ),
+                        buttonState: [
+                            teamA.id: .init(title: "POINT", color: .primary),
+                            teamB.id: .init(title: "POINT", color: .primary)
+                        ]
                     ),
                     reducer: activeMatchReducer,
                     environment: .init()

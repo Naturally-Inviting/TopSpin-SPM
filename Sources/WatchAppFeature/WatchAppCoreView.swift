@@ -25,6 +25,12 @@ public struct WatchAppCoreView: View {
 //        }
         
 //        WorkoutView(store: store.scope(state: \.workoutState, action: WatchAppAction.workout))
-        ActiveMatchView(store: store.scope(state: \.activeMatchState, action: WatchAppAction.activeMatch))
+        IfLetStore(
+            store.scope(
+                state: \.activeMatchState,
+                action: WatchAppAction.activeMatch
+            ),
+            then: ActiveMatchView.init(store:)
+        )
     }
 }

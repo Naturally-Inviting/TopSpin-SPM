@@ -21,7 +21,17 @@ public struct WatchAppState: Equatable {
     @BindableState public var selectedTabIndex: Int
     public var watchConnectivityState: WatchConnectivityState
     public var workoutState: WorkoutState
-    public var activeMatchState: ActiveMatchState = .init()
+    public var activeMatchState: ActiveMatchState? = .init(
+        matchSettings: .init(
+            id: .init(),
+            createdDate: .now,
+            isTrackingWorkout: true,
+            isWinByTwo: true,
+            name: "test",
+            scoreLimit: 11,
+            serveInterval: 2
+        )
+    )
 }
 
 public enum WatchAppAction: BindableAction {
@@ -113,6 +123,7 @@ public let watchCoreReducer: WatchCoreReducer =
             }
         ),
     activeMatchReducer
+        .optional()
         .pullback(
             state: \.activeMatchState,
             action: /WatchAppAction.activeMatch,

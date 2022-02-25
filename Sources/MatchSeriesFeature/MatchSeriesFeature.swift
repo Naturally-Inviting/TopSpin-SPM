@@ -19,13 +19,25 @@ extension RallyState: Identifiable {
 
 extension RallyTeam: Identifiable {}
 
-struct ButtonState: Equatable {
-    var title: String
-    var color: Color
+public struct MatchSeriesState: Equatable {
+    struct ButtonState: Equatable {
+        var title: String
+        var color: Color
+    }
+    
+    init(
+        matchSeriesState: RallyMatchState,
+        buttonState: [RallyTeam.ID: ButtonState]
+    ) {
+        self.matchSeriesState = matchSeriesState
+        self.buttonState = buttonState
+    }
+    
+    var matchSeriesState: RallyMatchState
+    var buttonState: [RallyTeam.ID: ButtonState]
 }
 
-public struct MatchSeriesState: Equatable {
-    
+extension MatchSeriesState {
     public init(
         matchCount: Int,
         matchSettings: MatchSetting
@@ -42,11 +54,6 @@ public struct MatchSeriesState: Equatable {
                 teamA,
                 teamB
             ]
-        )
-        
-        self.matchEnvironment = .init(
-            matchCount: matchCount,
-            matchSettings: rallyGameSettings
         )
         
         let matches: [RallyState] = (0..<matchCount).map { matchNumber in
@@ -69,7 +76,10 @@ public struct MatchSeriesState: Equatable {
             isMatchPoint: false,
             matchStatus: .active,
             winningTeam: nil,
-            matchSettings: self.matchEnvironment
+            matchSettings: .init(
+                matchCount: matchCount,
+                matchSettings: rallyGameSettings
+            )
         )
         
         self.buttonState = [
@@ -77,11 +87,6 @@ public struct MatchSeriesState: Equatable {
             teamB.id: .init(title: "POINT", color: .primary)
         ]
     }
-    
-    var matchEnvironment: RallyMatchEnvironment
-    var matchSeriesState: RallyMatchState
-    
-    var buttonState: [RallyTeam.ID: ButtonState]
 }
 
 public enum MatchSeriesAction {
@@ -104,7 +109,7 @@ public let matchSeriesReducer = MatchSeriesReducer
         } else if case let .gamePoint(team) = state.matchSeriesState.currentMatch.gameState {
             state.buttonState[team] = .init(title: "GAME", color: .green)
         } else {
-            state.matchEnvironment.matchSettings.teams.forEach {
+            state.matchSeriesState.matchSettings.matchSettings.teams.forEach {
                 state.buttonState[$0.id] = .init(title: "POINT", color: .primary)
             }
         }
@@ -172,7 +177,7 @@ struct RallyMatchSeriesView: View {
                             viewStore.send(.rally(.gameAction(.teamScored(team.id))))
                         }
                         .padding(4)
-                        .buttonStyle(BorderedButtonStyle(tint: viewStore.buttonState[team.id]?.color ?? .clear))
+                        .buttonStyle(BorderedButtonStyle(tint: viewStore.buttonState[team.id]?.color ?? .primary))
                     }
                 }
             }
@@ -189,20 +194,79 @@ struct RallyMatchSeriesView: View {
 
 struct RallyMatchSeriesView_Previews: PreviewProvider {
     
+    static let teamA: RallyTeam = .init(id: "TeamA", teamName: "You")
+    static let teamB: RallyTeam = .init(id: "TeamB", teamName: "OPPT.")
+    
     static var previews: some View {
         RallyMatchSeriesView(
             store: Store(
-                initialState: MatchSeriesState(
-                    matchCount: 5,
-                    matchSettings: .init(
-                        id: .init(),
-                        createdDate: .now,
-                        isTrackingWorkout: true,
-                        isWinByTwo: true,
-                        name: "test",
-                        scoreLimit: 11,
-                        serveInterval: 2
-                    )
+                initialState: .init(
+                    matchSeriesState: .init(
+                        currentMatchIndex: 0,
+                        matches: [
+                            RallyState(
+                                serveState: .init(servingTeam: teamA),
+                                score: [teamA.id: 0, teamB.id: 0],
+                                gameState: .ready,
+                                gameSettings: .init(
+                                    isWinByTwo: true,
+                                    scoreLimit: 11,
+                                    serveInterval: .two,
+                                    teams: [
+                                        teamA,
+                                        teamB
+                                    ]
+                                )
+                            ),
+                            RallyState(
+                                serveState: .init(servingTeam: teamB),
+                                score: [teamA.id: 0, teamB.id: 0],
+                                gameState: .ready,
+                                gameSettings: .init(
+                                    isWinByTwo: true,
+                                    scoreLimit: 11,
+                                    serveInterval: .two,
+                                    teams: [
+                                        teamA,
+                                        teamB
+                                    ]
+                                )
+                            ),
+                            RallyState(
+                                serveState: .init(servingTeam: teamA),
+                                score: [teamA.id: 0, teamB.id: 0],
+                                gameState: .ready,
+                                gameSettings: .init(
+                                    isWinByTwo: true,
+                                    scoreLimit: 11,
+                                    serveInterval: .two,
+                                    teams: [
+                                        teamA,
+                                        teamB
+                                    ]
+                                )
+                            )
+                        ],
+                        isMatchPoint: false,
+                        matchStatus: .active,
+                        winningTeam: nil,
+                        matchSettings: .init(
+                            matchCount: 3,
+                            matchSettings: .init(
+                                isWinByTwo: true,
+                                scoreLimit: 11,
+                                serveInterval: .two,
+                                teams: [
+                                    teamA,
+                                    teamB
+                                ]
+                            )
+                        )
+                    ),
+                    buttonState: [
+                        teamA.id: .init(title: "POINT", color: .primary),
+                        teamB.id: .init(title: "POINT", color: .primary)
+                    ]
                 ),
                 reducer: matchSeriesReducer,
                 environment: MatchSeriesEnvironment()
