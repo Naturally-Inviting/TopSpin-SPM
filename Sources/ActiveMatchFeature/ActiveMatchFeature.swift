@@ -1,37 +1,56 @@
 import ComposableArchitecture
 import ComposableHelpers
+import Models
 import Rally
 import SwiftUI
 
 public typealias ActiveMatchReducer = Reducer<ActiveMatchState, ActiveMatchAction, ActiveMatchEnvironment>
 
+extension RallyTeam: Identifiable {}
+
+struct ButtonState: Equatable {
+    var title: String
+    var color: Color
+}
+
 public struct ActiveMatchState: Equatable {
     
-    public init() {}
-    
-    static let teamA = RallyTeam(id: "teamA", teamName: "teamA")
-    static let teamB = RallyTeam(id: "teamB", teamName: "teamB")
-    
-    var rallyGameState = RallyState(
-        serveState:  RallyServeState(servingTeam: teamA),
-        score: [
-            teamA.id: 0,
-            teamB.id: 0
-        ],
-        gameState: .ready,
-        gameLog: [],
-        isGamePoint: false,
-        winningTeam: nil,
-        gameSettings: .init(
-            isWinByTwo: true,
-            scoreLimit: 11,
-            serveInterval: .two,
-            teams: [
-                teamA,
-                teamB
-            ]
+    public init(
+        matchSettings: MatchSetting
+    ) {
+        let teamA = RallyTeam(id: "teamA", teamName: "You")
+        let teamB = RallyTeam(id: "teamB", teamName: "Oppt.")
+        
+        rallyGameState = RallyState(
+            serveState:  RallyServeState(servingTeam: teamA),
+            score: [
+                teamA.id: 0,
+                teamB.id: 0
+            ],
+            gameState: .ready,
+            gameLog: [],
+            isGamePoint: false,
+            winningTeam: nil,
+            gameSettings: .init(
+                isWinByTwo: matchSettings.isWinByTwo,
+                scoreLimit: matchSettings.scoreLimit,
+                serveInterval: .init(rawValue: matchSettings.serveInterval)!,
+                teams: [
+                    teamA,
+                    teamB
+                ]
+            )
         )
-    )
+        
+        self.buttonState = [
+            teamA.id: .init(title: "POINT", color: .primary),
+            teamB.id: .init(title: "POINT", color: .primary)
+        ]
+    }
+    
+    var rallyGameState: RallyState
+    var buttonState: [RallyTeam.ID: ButtonState]
+
 }
 
 public enum ActiveMatchAction {
@@ -47,6 +66,15 @@ public let activeMatchReducer = ActiveMatchReducer
     switch action {
     case let .rally(rallyAction):
         state.rallyGameState = rallyGameReducer(state.rallyGameState, rallyAction)
+        
+        if case let .gamePoint(team) = state.rallyGameState.gameState {
+            state.buttonState[team] = .init(title: "GAME", color: .green)
+        } else {
+            state.rallyGameState.gameSettings.teams.forEach {
+                state.buttonState[$0.id] = .init(title: "POINT", color: .primary)
+            }
+        }
+        
         return .none
         
     default:
@@ -79,41 +107,33 @@ public struct ActiveMatchView: View {
                 
                 HStack {
                     Spacer()
-                    HStack {
-                        HStack {
-                            Circle()
-                                .frame(width: 5, height: 5)
-                                .foregroundColor(
-                                    viewStore.rallyGameState.serveState.servingTeam.id == "teamA"
-                                    ? .green
-                                    : .clear
+                    
+                    HStack(spacing: 0) {
+                        ForEach(viewStore.rallyGameState.gameSettings.teams) { team in
+                            VStack {
+                                Text(team.teamName)
+                                Text("\(viewStore.rallyGameState.score[team.id] ?? 0)")
+                                    .font(.largeTitle)
+
+                                Circle()
+                                    .frame(width: 10, height: 10)
+                                    .foregroundColor(team == viewStore.rallyGameState.serveState.servingTeam ? .green : .clear)
+                                
+                                Button(viewStore.buttonState[team.id]?.title ?? "") {
+                                    viewStore.send(.rally(.teamScored(team.id)))
+                                }
+                                .padding(4)
+                                .buttonStyle(BorderedButtonStyle(
+                                    tint: viewStore.buttonState[team.id]?.color ?? .clear)
                                 )
-                            Text("\(viewStore.rallyGameState.score["teamA"] ?? 0)")
-                        }
-                        Text("-")
-                        HStack {
-                            Text("\(viewStore.rallyGameState.score["teamB"] ?? 0 )")
-                            Circle()
-                                .frame(width: 5, height: 5)
-                                .foregroundColor(
-                                    viewStore.rallyGameState.serveState.servingTeam.id == "teamB"
-                                    ? .green
-                                    : .clear
-                                )
+                            }
                         }
                     }
-                    .font(.title)
+                    
                     Spacer()
                 }
                 
                 Spacer()
-                
-                Button("Player 1") {
-                    viewStore.send(.rally(.teamScored("teamA")))
-                }
-                Button("Player 2") {
-                    viewStore.send(.rally(.teamScored("teamB")))
-                }
                 
                 Button("Cancel", action: { })
                     .buttonStyle(BorderedButtonStyle(tint: .red))
@@ -128,7 +148,17 @@ struct ActiveMatch_Previews: PreviewProvider {
         NavigationView {
             ActiveMatchView(
                 store: Store(
-                    initialState: .init(),
+                    initialState: .init(
+                        matchSettings: .init(
+                            id: .init(),
+                            createdDate: .now,
+                            isTrackingWorkout: true,
+                            isWinByTwo: true,
+                            name: "test",
+                            scoreLimit: 11,
+                            serveInterval: 2
+                        )
+                    ),
                     reducer: activeMatchReducer,
                     environment: .init()
                 )

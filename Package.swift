@@ -111,6 +111,7 @@ let package = Package(
             name: "ActiveMatchFeature",
             dependencies: [
                 "ComposableHelpers",
+                "Models",
                 "Rally",
                 "World",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
