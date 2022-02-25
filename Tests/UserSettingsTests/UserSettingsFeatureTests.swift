@@ -7,15 +7,17 @@ import XCTest
 extension UserSettingsEnvironment {
     static var failing: Self {
         Self(
-            applicationClient: .failing,
-            uiUserInterfaceStyleClient: .failing,
-            fileClient: .failing,
-            mainQueue: .failing,
-            userDefaults: .failing,
-            storeKitClient: .noop,
-            shareSheetClient: .noop,
+            cloudKitClient: .noop,
+            defaultSettingsClient: .init(defaultId: { nil }, setDefault: { _ in .none }),
             emailClient: .noop,
-            cloudKitClient: .noop
+            fileClient: .noop,
+            mainQueue: .failing,
+            matchSettingsClient: .init(fetch: { .none }, create: { _ in .none}, delete: { _ in .none }),
+            shareSheetClient: .noop,
+            storeKitClient: .noop,
+            uiApplicationClient: .noop,
+            uiUserInterfaceStyleClient: .noop,
+            userDefaults: .noop
         )
     }
 }
