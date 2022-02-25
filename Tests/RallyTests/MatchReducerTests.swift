@@ -5,9 +5,30 @@ final class MatchReducerTests: XCTestCase {
    
     var state = RallyMatchState(
         matches: [
-            .init(serveState: .init(servingTeam: RallyTeam.teamA), score: [RallyTeam.teamA.id: 0, RallyTeam.teamB.id: 0], gameState: .ready, gameSettings: .mocked),
-            .init(serveState: .init(servingTeam: RallyTeam.teamB), score: [RallyTeam.teamA.id: 0, RallyTeam.teamB.id: 0], gameState: .ready, gameSettings: .mocked),
-            .init(serveState: .init(servingTeam: RallyTeam.teamA), score: [RallyTeam.teamA.id: 0, RallyTeam.teamB.id: 0], gameState: .ready, gameSettings: .mocked)
+            .init(
+                serveState: .init(
+                    servingTeam: RallyTeam.teamA
+                ),
+                score: [RallyTeam.teamA.id: 0, RallyTeam.teamB.id: 0],
+                gameState: .ready,
+                gameSettings: .mocked
+            ),
+            .init(
+                serveState: .init(
+                    servingTeam: RallyTeam.teamB
+                ),
+                score: [RallyTeam.teamA.id: 0, RallyTeam.teamB.id: 0],
+                gameState: .ready,
+                gameSettings: .mocked)
+            ,
+            .init(
+                serveState: .init(
+                    servingTeam: RallyTeam.teamA
+                ),
+                score: [RallyTeam.teamA.id: 0, RallyTeam.teamB.id: 0],
+                gameState: .ready,
+                gameSettings: .mocked
+            )
         ],
         matchSettings: .mocked
     )

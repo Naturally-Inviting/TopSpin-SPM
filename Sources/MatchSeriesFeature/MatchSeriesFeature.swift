@@ -98,6 +98,17 @@ public let matchSeriesReducer = MatchSeriesReducer
     switch action {
     case let .rally(rallyAction):
         state.matchSeriesState = rallyMatchReducer(state.matchSeriesState, rallyAction)
+        
+        if case let .matchPoint(team) = state.matchSeriesState.matchStatus {
+            state.buttonState[team] = .init(title: "MATCH", color: .green)
+        } else if case let .gamePoint(team) = state.matchSeriesState.currentMatch.gameState {
+            state.buttonState[team] = .init(title: "GAME", color: .green)
+        } else {
+            state.matchEnvironment.matchSettings.teams.forEach {
+                state.buttonState[$0.id] = .init(title: "POINT", color: .primary)
+            }
+        }
+        
         return .none
         
     default:

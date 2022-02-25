@@ -350,6 +350,12 @@ let package = Package(
 
 package.targets.append(contentsOf: [
     .testTarget(
+        name: "RallyTests",
+        dependencies: [
+            "Rally"
+        ]
+    ),
+    .testTarget(
         name: "UserSettingsTests",
         dependencies: [
             "UserSettingsFeature",

@@ -30,7 +30,13 @@ public func rallyMatchReducer(_ state: RallyMatchState, _ action: RallyMatchActi
             return state
         }
         
-        state.isMatchPoint = isMatchPoint(state)
+        if let teamWithMatchPoint = isMatchPoint(state) {
+            state.isMatchPoint = true
+            state.matchStatus = .matchPoint(teamWithMatchPoint.id)
+        } else {
+            state.isMatchPoint = false
+            state.matchStatus = .active
+        }
     }
     
     return state

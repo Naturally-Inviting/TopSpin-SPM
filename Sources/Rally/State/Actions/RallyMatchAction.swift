@@ -1,7 +1,8 @@
 import Foundation
 
-public enum RallyMatchStatus: String, Equatable, Codable {
+public enum RallyMatchStatus: Equatable, Codable {
     case active
+    case matchPoint(TeamId)
     case complete
     case cancelled
 }

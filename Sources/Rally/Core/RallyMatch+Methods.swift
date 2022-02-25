@@ -22,15 +22,14 @@ internal func matchWinningTeam(_ state: RallyMatchState) -> RallyTeam? {
 /// and if they have game point in that current game.
 /// - Parameters:
 ///   - state: Current RallyMatchState
-///   - environment: Current RallyMatchEnvironment
-/// - Returns: True if a team has match point.
-internal func isMatchPoint(_ state: RallyMatchState) -> Bool {
+/// - Returns: A ``RallyTeam`` that has match point.
+internal func isMatchPoint(_ state: RallyMatchState) -> RallyTeam? {
     let teams = state.matchSettings.matchSettings.teams.map({ $0 })
     let currentMatch = state.matches[state.currentMatchIndex]
     
     /// Data structure to include key match details for team wins and the score for the current match.
     struct MatchDetail {
-        let teamId: TeamId
+        let team: RallyTeam
         let wins: Int
         let currentMatchScore: Int
     }
@@ -38,11 +37,14 @@ internal func isMatchPoint(_ state: RallyMatchState) -> Bool {
     let winMap: [MatchDetail] = teams.map { team in
         let wins = state.matches.filter({ $0.winningTeam == team }).count
         let currentMatchScore = currentMatch.score[team.id] ?? 0
-        return MatchDetail(teamId: team.id, wins: wins, currentMatchScore: currentMatchScore)
+        return MatchDetail(team: team, wins: wins, currentMatchScore: currentMatchScore)
     }
     
-    return winMap.contains { teamWin in
-        guard let opposingTeamId = state.matchSettings.matchSettings.teams.first(where: { $0.id != teamWin.teamId })?.id else { return false }
+    return winMap.first { teamWin in
+        guard let opposingTeamId = state.matchSettings.matchSettings.teams
+                .first(where: { $0.id != teamWin.team.id })?.id
+        else { return false }
+        
         let opposingCurrentMatchScore = currentMatch.score[opposingTeamId] ?? 0
         
         if teamWin.wins == state.matchSettings.neededToWin - 1 {
@@ -50,5 +52,5 @@ internal func isMatchPoint(_ state: RallyMatchState) -> Bool {
         }
         
         return false
-    }
+    }?.team
 }

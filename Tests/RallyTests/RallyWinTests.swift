@@ -110,25 +110,6 @@ final class RallyWinTests: XCTestCase {
         XCTAssertEqual(winningTeam, RallyTeam.teamB)
     }
     
-    func testRallyGameStatus_HumanReadable() {
-        let score = GameEvent.score(RallyTeam.teamA, 1)
-        XCTAssertEqual("teamA scored.", score.humanReadable)
-        
-        let serviceChange = GameEvent.serviceChange(RallyTeam.teamB)
-        XCTAssertEqual("teamB now serving.", serviceChange.humanReadable)
-        
-        let gameWon = GameEvent.gameWon(RallyTeam.teamA)
-        XCTAssertEqual("teamA has won.", gameWon.humanReadable)
-        
-        let gamePoint = GameEvent.gamePoint(RallyTeam.teamA)
-        XCTAssertEqual("teamA has game point.", gamePoint.humanReadable)
-        
-        RallyGameStatus.allCases.forEach { status in
-            let event = GameEvent.gameStatusChanged(status)
-            XCTAssertEqual("Game status changed to: \(status.name)", event.humanReadable)
-        }
-    }
-    
     func testGameStatus_TimelineEntry() {
         Current.date = { .distantFuture }
         

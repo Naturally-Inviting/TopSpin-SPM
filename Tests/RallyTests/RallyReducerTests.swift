@@ -1,6 +1,17 @@
 import XCTest
 @testable import Rally
 
+extension RallyGameStatus: CaseIterable {
+    public static var allCases: [RallyGameStatus] = [
+        .ready,
+        .active,
+        .gamePoint("TeamId"),
+        .complete,
+        .paused,
+        .cancelled
+    ]
+}
+
 final class RallyReducerTests: XCTestCase {
     var state = RallyState(
         serveState: .init(servingTeam: RallyTeam.teamA),
@@ -41,6 +52,25 @@ final class RallyReducerTests: XCTestCase {
         RallyGameStatus.allCases.forEach {
             state = rallyGameReducer(state, .statusChanged($0))
             XCTAssertEqual(state.gameState, $0)
+        }
+    }
+    
+    func testRallyGameStatus_HumanReadable() {
+        let score = GameEvent.score(RallyTeam.teamA, 1)
+        XCTAssertEqual("teamA scored.", score.humanReadable)
+        
+        let serviceChange = GameEvent.serviceChange(RallyTeam.teamB)
+        XCTAssertEqual("teamB now serving.", serviceChange.humanReadable)
+        
+        let gameWon = GameEvent.gameWon(RallyTeam.teamA)
+        XCTAssertEqual("teamA has won.", gameWon.humanReadable)
+        
+        let gamePoint = GameEvent.gamePoint(RallyTeam.teamA)
+        XCTAssertEqual("teamA has game point.", gamePoint.humanReadable)
+        
+        RallyGameStatus.allCases.forEach { status in
+            let event = GameEvent.gameStatusChanged(status)
+            XCTAssertEqual("Game status changed to: \(status.name)", event.humanReadable)
         }
     }
     

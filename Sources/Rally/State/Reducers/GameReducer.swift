@@ -39,10 +39,16 @@ public func rallyGameReducer(_ state: RallyState, _ action: RallyAction) -> Rall
             // It is impossible to get game point after one rally.
             if !state.isGamePoint {
                 state.isGamePoint = true
+                state.gameState = .gamePoint(team.id)
                 state.gameLog.append(.init(.gamePoint(team)))
             }
         } else {
             state.isGamePoint = false
+            
+            // When previously game point, reset to active.
+            if case .gamePoint = state.gameState {
+                state.gameState = .active
+            }
         }
     }
     

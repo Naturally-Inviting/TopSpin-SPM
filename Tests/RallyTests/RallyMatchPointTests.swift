@@ -14,8 +14,8 @@ final class RallyMatchTests: XCTestCase {
     
     func testIsMatchPoint() {
         // Test base state
-        let noMatchPoint = isMatchPoint(state)
-        XCTAssertFalse(noMatchPoint)
+        let teamWithMatchPoint = isMatchPoint(state)
+        XCTAssertNil(teamWithMatchPoint)
 
         var gameCopy = state.matches[0]
                 
@@ -32,7 +32,7 @@ final class RallyMatchTests: XCTestCase {
         
         // Test Team A should have match point
         let teamAMatchPoint = isMatchPoint(state)
-        XCTAssertTrue(teamAMatchPoint)
+        XCTAssertNotNil(teamAMatchPoint)
         
         gameCopy = state.matches[1]
         gameCopy.score = [RallyTeam.teamA.id : 9, RallyTeam.teamB.id: 5]
@@ -40,7 +40,7 @@ final class RallyMatchTests: XCTestCase {
 
         // Test Team A does not have match point.
         let teamANoMatchPoint = isMatchPoint(state)
-        XCTAssertFalse(teamANoMatchPoint)
+        XCTAssertNil(teamANoMatchPoint)
     }
     
     func testIsMatchWin() {
