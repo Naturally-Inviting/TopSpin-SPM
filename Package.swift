@@ -41,6 +41,7 @@ let package = Package(
         .library(name: "UIUserInterfaceStyleClient", targets: ["UIUserInterfaceStyleClient"]),
         .library(name: "UserDefaultsClient", targets: ["UserDefaultsClient"]),
         .library(name: "UserSettingsFeature", targets: ["UserSettingsFeature"]),
+        .library(name: "WatchActiveMatchTabFeature", targets: ["WatchActiveMatchTabFeature"]),
         .library(name: "WatchConnectivityClient", targets: ["WatchConnectivityClient"]),
         .library(name: "WorkoutFeature", targets: ["WorkoutFeature"]),
         .library(name: "World", targets: ["World"]),
@@ -325,6 +326,21 @@ let package = Package(
             ],
             resources: [
                 .process("Resources/")
+            ]
+        ),
+        .target(
+            name: "WatchActiveMatchTabFeature",
+            dependencies: [
+                "ActiveMatchFeature",
+                "ComposableHelpers",
+                "HealthKitClient",
+                "MatchSeriesFeature",
+                "Models",
+                "Rally",
+                "SwiftUIHelpers",
+                "World",
+                "WorkoutFeature",
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ]
         ),
         .target(

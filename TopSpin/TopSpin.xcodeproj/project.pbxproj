@@ -165,8 +165,8 @@
 			children = (
 				CE7C5F8C27BA069300C8978D /* TopSpin-Info.plist */,
 				CE7C5F8627BA006F00C8978D /* TopSpin.entitlements */,
-				CEFC46AC2788FD010005216B /* TopSpinApp */,
 				CEFC46BB2788FD580005216B /* TopSpin */,
+				CEFC46AC2788FD010005216B /* TopSpinApp */,
 				CEE85FA7278D28C700EC374E /* TopSpinWatch */,
 				CEE85FB2278D28C900EC374E /* TopSpinWatch WatchKit Extension */,
 				CEFC46AB2788FD010005216B /* Products */,

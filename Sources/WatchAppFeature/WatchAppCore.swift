@@ -10,28 +10,14 @@ public typealias WatchCoreReducer = Reducer<WatchAppState, WatchAppAction, Watch
 public struct WatchAppState: Equatable {
     public init(
         selectedTabIndex: Int = 2,
-        watchConnectivityState: WatchConnectivityState = .init(),
-        workoutState: WorkoutState = .init()
+        watchConnectivityState: WatchConnectivityState = .init()
     ) {
         self.selectedTabIndex = selectedTabIndex
         self.watchConnectivityState = watchConnectivityState
-        self.workoutState = workoutState
     }
     
     @BindableState public var selectedTabIndex: Int
     public var watchConnectivityState: WatchConnectivityState
-    public var workoutState: WorkoutState
-    public var activeMatchState: ActiveMatchState? = .init(
-        matchSettings: .init(
-            id: .init(),
-            createdDate: .now,
-            isTrackingWorkout: true,
-            isWinByTwo: true,
-            name: "test",
-            scoreLimit: 11,
-            serveInterval: 2
-        )
-    )
 }
 
 public enum WatchAppAction: BindableAction {
@@ -41,9 +27,6 @@ public enum WatchAppAction: BindableAction {
     case setWatchAppInstalled(Bool)
     case setWCSessionSupported(Bool)
     case watchConnectivity(Result<WatchConnectivityClient.Action, WatchConnectivityClient.Failure>)
-    
-    case workout(WorkoutAction)
-    case activeMatch(ActiveMatchAction)
 }
 
 public struct WatchEnvironment {
@@ -111,25 +94,5 @@ private let reducer = WatchCoreReducer
 
 public let watchCoreReducer: WatchCoreReducer =
 .combine(
-    workoutReducer
-        .pullback(
-            state: \.workoutState,
-            action: /WatchAppAction.workout,
-            environment: {
-                WorkoutEnvironment(
-                    healthKitClient: $0.healthKitClient,
-                    mainQueue: $0.mainQueue
-                )
-            }
-        ),
-    activeMatchReducer
-        .optional()
-        .pullback(
-            state: \.activeMatchState,
-            action: /WatchAppAction.activeMatch,
-            environment: { _ in 
-                ActiveMatchEnvironment()
-            }
-        ),
     reducer
 )
