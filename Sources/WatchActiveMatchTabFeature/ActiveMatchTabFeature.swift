@@ -14,6 +14,14 @@ import WorkoutFeature
 public typealias MatchControllerReducer = Reducer<MatchControllerState, MatchControllerAction, MatchControllerEnvironment>
 
 public struct MatchControllerState: Equatable {
+    public init(
+        isPaused: Bool = false,
+        alert: AlertState<MatchControllerAction>? = nil
+    ) {
+        self.isPaused = isPaused
+        self.alert = alert
+    }
+    
     var isPaused: Bool = false
     var alert: AlertState<MatchControllerAction>? = nil
 }
@@ -26,8 +34,7 @@ public enum MatchControllerAction: Equatable {
     case matchCancelled
 }
 
-public struct MatchControllerEnvironment {
-}
+public struct MatchControllerEnvironment {}
 
 public let matchControllerReducer = MatchControllerReducer
 { state, action, environment in
@@ -55,19 +62,44 @@ public struct MatchControllerView: View {
     public var body: some View {
         VStack {
             HStack {
-                Button(action: { viewStore.send(.cancel) }) {
-                    Image(systemName: "xmark")
-                        .font(.title3)
-                        .foregroundColor(.red)
+                VStack {
+                    Button(action: { viewStore.send(.cancel) }) {
+                        Image(systemName: "xmark")
+                            .font(.title3)
+                            .foregroundColor(.red)
+                    }
+                    .buttonStyle(BorderedButtonStyle(tint: .red))
+                    
+                    Text("Cancel")
                 }
-                .buttonStyle(BorderedButtonStyle(tint: .red))
                 
-                Button(action: { viewStore.send(.pauseTapped) }) {
-                    Image(systemName: viewStore.isPaused ? "pause" : "arrow.clockwise")
-                        .font(.title3)
-                        .foregroundColor(.yellow)
+                VStack {
+                    Button(action: { viewStore.send(.pauseTapped) }) {
+                        Image(systemName: viewStore.isPaused ? "arrow.clockwise" : "pause")
+                            .font(.title3)
+                            .foregroundColor(.blue)
+                    }
+                    .buttonStyle(BorderedButtonStyle(tint: .blue))
+                    
+                    Text(viewStore.isPaused ? "Resume" : "Pause")
                 }
-                .buttonStyle(BorderedButtonStyle(tint: .yellow))
+            }
+            
+            HStack {
+                Spacer()
+                
+                VStack {
+                    Button(action: { viewStore.send(.cancelWorkout) }) {
+                        Image(systemName: "heart")
+                            .font(.title3)
+                            .foregroundColor(.yellow)
+                    }
+                    .buttonStyle(BorderedButtonStyle(tint: .yellow))
+                    
+                    Text("Cancel Workout")
+                }
+                
+                Spacer()
             }
         }
     }
@@ -81,20 +113,30 @@ public typealias ActiveMatchTabReducer = Reducer<ActiveMatchTabState, ActiveMatc
 // TODO: Match Series should handle a single match
 
 public struct ActiveMatchTabState: Equatable {
-    var activeMatchState: ActiveMatchState = .init(
-        matchSettings: .init(
-            id: .init(),
-            createdDate: .now,
-            isTrackingWorkout: false,
-            isWinByTwo: true,
-            name: "test",
-            scoreLimit: 11,
-            serveInterval: 2
-        )
-    )
-    var matchControllerState: MatchControllerState = .init()
-    @BindableState public var tabIndex: Int = 2
-    var workoutState: WorkoutState? = .init()
+    public init(
+        activeMatchState: ActiveMatchState = .init(
+            matchSettings: .init(
+                id: .init(),
+                createdDate: .now,
+                isTrackingWorkout: false,
+                isWinByTwo: true,
+                name: "test",
+                scoreLimit: 11,
+                serveInterval: 2
+            )
+        ),
+        matchControllerState: MatchControllerState = .init(),
+        workoutState: WorkoutState? = .init()
+    ) {
+        self.activeMatchState = activeMatchState
+        self.matchControllerState = matchControllerState
+        self.workoutState = workoutState
+    }
+    
+    var activeMatchState: ActiveMatchState
+    var matchControllerState: MatchControllerState
+    @BindableState public var tabIndex: Int = 1
+    var workoutState: WorkoutState?
 }
 
 public enum ActiveMatchTabAction: BindableAction {
@@ -102,9 +144,18 @@ public enum ActiveMatchTabAction: BindableAction {
     case workout(WorkoutAction)
     case activeMatch(ActiveMatchAction)
     case matchController(MatchControllerAction)
+    case didAppear
 }
 
 public struct ActiveMatchTabEnvironment {
+    public init(
+        healthKitClient: HealthKitClient,
+        mainQueue: AnySchedulerOf<DispatchQueue>
+    ) {
+        self.healthKitClient = healthKitClient
+        self.mainQueue = mainQueue
+    }
+    
     var healthKitClient: HealthKitClient
     var mainQueue: AnySchedulerOf<DispatchQueue>
 }
@@ -112,23 +163,49 @@ public struct ActiveMatchTabEnvironment {
 private let reducer = ActiveMatchTabReducer
 { state, action, environment in
     switch action {
+    case .activeMatch(.rally(.statusChanged(.active))):
+        if state.workoutState != nil {
+            return Effect(value: .workout(.start))
+        }
+        
+        return .none
     case .matchController(.pauseTapped):
         if state.matchControllerState.isPaused {
-            // Pause Rally and pause workout
-            return .merge(
-                Effect(value: .workout(.pause)),
+            var effects: [Effect<ActiveMatchTabAction, Never>] = [
                 Effect(value: .activeMatch(.rally(.statusChanged(.paused))))
-            )
+            ]
+            
+            if state.workoutState != nil {
+                effects.append(Effect(value: .workout(.pause)))
+            }
+            
+            // Pause Rally and pause workout
+            return .merge(effects)
         } else {
-            return .merge(
-                Effect(value: .workout(.resume)),
+            var effects: [Effect<ActiveMatchTabAction, Never>] = [
                 Effect(value: .activeMatch(.rally(.statusChanged(.active))))
-            )
+            ]
+            
+            if state.workoutState != nil {
+                effects.append(Effect(value: .workout(.resume)))
+            }
+            
+            return .merge(effects)
         }
         
     case .matchController(.matchCancelled):
-        return Effect(value: .workout(.cancelWorkout))
+        if state.workoutState != nil {
+            return Effect(value: .workout(.cancelWorkout))
+        }
         
+        return .none
+        
+    case .didAppear:
+        if state.workoutState != nil {
+            return Effect(value: .workout(.viewDidAppear))
+        }
+        
+        return .none
     default:
         return .none
     }
@@ -137,6 +214,14 @@ private let reducer = ActiveMatchTabReducer
 
 public let activeMatchTabReducer: ActiveMatchTabReducer =
 .combine(
+    activeMatchReducer
+        .pullback(
+            state: \.activeMatchState,
+            action: /ActiveMatchTabAction.activeMatch,
+            environment: { _ in
+                ActiveMatchEnvironment()
+            }
+        ),
     workoutReducer
         .optional()
         .pullback(
@@ -195,6 +280,9 @@ public struct ActiveMatchTabView: View {
                     action: ActiveMatchTabAction.matchController)
             )
             .tag(2)
+        }
+        .onAppear {
+            viewStore.send(.didAppear)
         }
     }
 }

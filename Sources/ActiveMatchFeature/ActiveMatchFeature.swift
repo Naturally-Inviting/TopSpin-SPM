@@ -119,15 +119,28 @@ public struct ActiveMatchView: View {
                         .cornerRadius(2)
                 }
                 
+                if viewStore.rallyGameState.gameState == .paused {
+                    Text("Match Paused")
+                        .font(.headline)
+                        .padding()
+                }
+                
                 HStack {
                     Spacer()
                     
                     HStack(spacing: 0) {
                         ForEach(viewStore.rallyGameState.gameSettings.teams) { team in
                             VStack {
-                                Text(team.teamName)
-                                Text("\(viewStore.rallyGameState.score[team.id] ?? 0)")
-                                    .font(.largeTitle)
+                                VStack {
+                                    Text(team.teamName)
+                                    Text("\(viewStore.rallyGameState.score[team.id] ?? 0)")
+                                        .font(.largeTitle)
+                                }
+                                .foregroundColor(
+                                    viewStore.rallyGameState.gameState == .paused
+                                    ? .secondary
+                                    : .primary
+                                )
 
                                 Circle()
                                     .frame(width: 10, height: 10)
@@ -140,6 +153,7 @@ public struct ActiveMatchView: View {
                                 .buttonStyle(BorderedButtonStyle(
                                     tint: viewStore.buttonState[team.id]?.color ?? .primary)
                                 )
+                                .isHidden(viewStore.rallyGameState.gameState == .paused)
                             }
                         }
                     }
@@ -148,10 +162,6 @@ public struct ActiveMatchView: View {
                 }
                 
                 Spacer()
-                
-                Button("Cancel", action: { })
-                    .buttonStyle(BorderedButtonStyle(tint: .red))
-                    .padding(.top, 24)
             }
         }
     }
@@ -209,6 +219,33 @@ struct ActiveMatch_Previews: PreviewProvider {
                     environment: .init()
                 )
             )
+        }
+    }
+}
+
+extension View {
+    /// Hide or show the view based on a boolean value.
+    ///
+    /// Example for visibility:
+    ///
+    ///     Text("Label")
+    ///         .isHidden(true)
+    ///
+    /// Example for complete removal:
+    ///
+    ///     Text("Label")
+    ///         .isHidden(true, remove: true)
+    ///
+    /// - Parameters:
+    ///   - hidden: Set to `false` to show the view. Set to `true` to hide the view.
+    ///   - remove: Boolean value indicating whether or not to remove the view.
+    @ViewBuilder func isHidden(_ hidden: Bool, remove: Bool = false) -> some View {
+        if hidden {
+            if !remove {
+                self.hidden()
+            }
+        } else {
+            self
         }
     }
 }

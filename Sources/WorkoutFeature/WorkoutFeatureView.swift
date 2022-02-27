@@ -14,7 +14,8 @@ public struct WorkoutState: Equatable {
         heartRateAverage: Int = 0,
         heartRateMax: Int = 0,
         heartRateMin: Int = 0,
-        viewInitialized: Bool = false
+        viewInitialized: Bool = false,
+        isAuthorized: Bool = false
     ) {
         self.activeCalories = activeCalories
         self.elapsedSeconds = elapsedSeconds
@@ -23,6 +24,7 @@ public struct WorkoutState: Equatable {
         self.heartRateMax = heartRateMax
         self.heartRateMin = heartRateMin
         self.viewInitialized = viewInitialized
+        self.isAuthorized = isAuthorized
     }
     
     var workoutState: HKWorkoutSessionState = .notStarted
@@ -32,6 +34,7 @@ public struct WorkoutState: Equatable {
     var heartRateMax: Int
     var heartRateMin: Int
     var viewInitialized: Bool
+    var isAuthorized: Bool
     
     // Timer
     var isTimerActive = false
@@ -172,11 +175,8 @@ public let workoutReducer = WorkoutReducer
           : Effect.cancel(id: TimerId())
         
     case let .healthKitAuth(.success(.authorizationDidChange(isAuthorized))):
-        guard isAuthorized else { return .none }
-        return environment.healthKitClient.start(WorkoutId(), .tableTennis, .indoor)
-            .receive(on: environment.mainQueue)
-            .catchToEffect(WorkoutAction.healthKit)
-            .cancellable(id: WorkoutCancellation())
+        state.isAuthorized = isAuthorized
+        return .none
         
     case .viewDidAppear:
         if !state.viewInitialized {
@@ -314,13 +314,6 @@ struct MatchWorkoutView: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .padding(.vertical)
-                    
-                    Button(pauseLabel, action: pauseAction)
-                        .padding(.top)
-                    
-                    Button("Cancel", action: cancelAction)
-                        .buttonStyle(BorderedButtonStyle(tint: .red))
-                        .padding(.top)
                 }
                 
                 Spacer()
