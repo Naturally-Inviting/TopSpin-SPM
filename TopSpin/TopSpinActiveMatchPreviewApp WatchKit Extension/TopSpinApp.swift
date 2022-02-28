@@ -8,9 +8,7 @@ struct ActiveMatchTabViewPreviewApp: App {
     
     init() {
         self.store = Store(
-            initialState: .init(
-                workoutState: nil
-            ),
+            initialState: .init(),
             reducer: activeMatchTabReducer.debug(),
             environment: .init(
                 healthKitClient: .live,

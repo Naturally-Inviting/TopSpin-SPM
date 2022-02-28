@@ -72,7 +72,7 @@ private class HealthKitDelegate: NSObject, HKWorkoutSessionDelegate, HKLiveWorko
             builder.endCollection(withEnd: date) { success, error in
                 self.builder.finishWorkout { workout, error in
                     // TODO: Anything to do here?
-                    print(error)
+                    print(error as Any)
                 }
             }
         }

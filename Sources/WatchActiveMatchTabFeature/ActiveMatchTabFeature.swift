@@ -9,104 +9,6 @@ import SwiftUI
 import World
 import WorkoutFeature
 
-// MARK: - Match Controller
-
-public typealias MatchControllerReducer = Reducer<MatchControllerState, MatchControllerAction, MatchControllerEnvironment>
-
-public struct MatchControllerState: Equatable {
-    public init(
-        isPaused: Bool = false,
-        alert: AlertState<MatchControllerAction>? = nil
-    ) {
-        self.isPaused = isPaused
-        self.alert = alert
-    }
-    
-    var isPaused: Bool = false
-    var alert: AlertState<MatchControllerAction>? = nil
-}
-
-public enum MatchControllerAction: Equatable {
-    case pauseTapped
-    case cancel
-    case cancelWorkout
-    
-    case matchCancelled
-}
-
-public struct MatchControllerEnvironment {}
-
-public let matchControllerReducer = MatchControllerReducer
-{ state, action, environment in
-    switch action {
-    case .pauseTapped:
-        state.isPaused.toggle()
-        return .none
-        
-    default:
-        return .none
-    }
-}
-
-public struct MatchControllerView: View {
-    let store: Store<MatchControllerState, MatchControllerAction>
-    @ObservedObject var viewStore: ViewStore<MatchControllerState, MatchControllerAction>
-    
-    public init(
-        store: Store<MatchControllerState, MatchControllerAction>
-    ) {
-        self.store = store
-        self.viewStore = ViewStore(self.store)
-    }
-    
-    public var body: some View {
-        VStack {
-            HStack {
-                VStack {
-                    Button(action: { viewStore.send(.cancel) }) {
-                        Image(systemName: "xmark")
-                            .font(.title3)
-                            .foregroundColor(.red)
-                    }
-                    .buttonStyle(BorderedButtonStyle(tint: .red))
-                    
-                    Text("Cancel")
-                }
-                
-                VStack {
-                    Button(action: { viewStore.send(.pauseTapped) }) {
-                        Image(systemName: viewStore.isPaused ? "arrow.clockwise" : "pause")
-                            .font(.title3)
-                            .foregroundColor(.blue)
-                    }
-                    .buttonStyle(BorderedButtonStyle(tint: .blue))
-                    
-                    Text(viewStore.isPaused ? "Resume" : "Pause")
-                }
-            }
-            
-            HStack {
-                Spacer()
-                
-                VStack {
-                    Button(action: { viewStore.send(.cancelWorkout) }) {
-                        Image(systemName: "heart")
-                            .font(.title3)
-                            .foregroundColor(.yellow)
-                    }
-                    .buttonStyle(BorderedButtonStyle(tint: .yellow))
-                    
-                    Text("Cancel Workout")
-                }
-                
-                Spacer()
-            }
-        }
-    }
-}
-
-// MARK: - Match Tab View
-
 public typealias ActiveMatchTabReducer = Reducer<ActiveMatchTabState, ActiveMatchTabAction, ActiveMatchTabEnvironment>
 
 // Important Note: -> Single first approach
@@ -129,7 +31,7 @@ public struct ActiveMatchTabState: Equatable {
         workoutState: WorkoutState? = .init()
     ) {
         self.activeMatchState = activeMatchState
-        self.matchControllerState = matchControllerState
+        self.matchControllerState = MatchControllerState(isWorkoutAvailable: workoutState != nil)
         self.workoutState = workoutState
     }
     
@@ -169,6 +71,13 @@ private let reducer = ActiveMatchTabReducer
         }
         
         return .none
+        
+    case .matchController(.workoutCancelled):
+        guard state.workoutState != nil
+        else { return .none }
+        
+        return Effect(value: .workout(.cancelWorkout))
+        
     case .matchController(.pauseTapped):
         if state.matchControllerState.isPaused {
             var effects: [Effect<ActiveMatchTabAction, Never>] = [
@@ -286,7 +195,6 @@ public struct ActiveMatchTabView: View {
         }
     }
 }
-
 
 struct ActiveMatchTabView_Previews: PreviewProvider {
     

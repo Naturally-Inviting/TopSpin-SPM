@@ -114,6 +114,7 @@ let package = Package(
                 "ComposableHelpers",
                 "Models",
                 "Rally",
+                "SwiftUIHelpers",
                 "World",
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
             ]
