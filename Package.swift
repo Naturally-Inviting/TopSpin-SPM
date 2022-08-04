@@ -48,7 +48,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/pointfreeco/swift-composable-architecture",
-            from: "0.28.1"
+            branch: "concurrency-beta"
         ),
         .package(
             url: "https://github.com/willbrandin/core-data-model-description",

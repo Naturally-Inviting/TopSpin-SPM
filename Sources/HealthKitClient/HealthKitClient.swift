@@ -5,16 +5,14 @@ import HealthKit
 import World
 
 public struct HealthKitClient {
-    public var requestAuthorization: (AnyHashable, Set<HKSampleType>?, Set<HKObjectType>?) -> Effect<Action, Never>
-    public var start: (AnyHashable, HKWorkoutActivityType, HKWorkoutSessionLocationType) -> Effect<Action, Failure>
-    public var pause: (AnyHashable) -> Effect<Never, Never>
+    public var requestAuthorization: (Any.Type, Set<HKSampleType>?, Set<HKObjectType>?) -> Effect<Action, Never>
+    public var start: (Any.Type, HKWorkoutActivityType, HKWorkoutSessionLocationType)-> Effect<Action, Failure>
+    public var pause: (Any.Type) -> Effect<Never, Never>
     
-//    public var end: () -> Effect<Never, Never>
-    public var resume: (AnyHashable) -> Effect<Never, Never>
-    public var end: (AnyHashable) -> Effect<Never, Never>
-    public var reset: (AnyHashable) -> Effect<Never, Never>
+    public var resume: (Any.Type) -> Effect<Never, Never>
+    public var end: (Any.Type) -> Effect<Never, Never>
+    public var reset: (Any.Type) -> Effect<Never, Never>
 
-    
     public enum Action {
         case authorizationDidChange(isAuthorized: Bool)
         case workoutSessionDidChange(HKWorkoutSessionState, HKWorkoutSessionState)
@@ -28,7 +26,7 @@ public struct HealthKitClient {
     }
 }
 
-private var dependencies: [AnyHashable: HealthKitDelegate] = [:]
+private var dependencies: [ObjectIdentifier: HealthKitDelegate] = [:]
 
 private class HealthKitDelegate: NSObject, HKWorkoutSessionDelegate, HKLiveWorkoutBuilderDelegate {
     
@@ -128,6 +126,7 @@ extension HealthKitClient {
                         }
                     )
                     
+                    let id = ObjectIdentifier(id)
                     dependencies[id] = delegate
                     let date = Current.date()
                     delegate.session.startActivity(with: date)
@@ -142,18 +141,22 @@ extension HealthKitClient {
                 }
             }, pause: { id in
                 .fireAndForget {
+                    let id = ObjectIdentifier(id)
                     dependencies[id]?.session.pause()
                 }
             }, resume: { id in
                 .fireAndForget {
+                    let id = ObjectIdentifier(id)
                     dependencies[id]?.session.resume()
                 }
             }, end: { id in
                 .fireAndForget {
+                    let id = ObjectIdentifier(id)
                     dependencies[id]?.session.end()
                 }
             }, reset: { id in
                 .fireAndForget {
+                    let id = ObjectIdentifier(id)
                     dependencies[id] = nil
                 }
             }

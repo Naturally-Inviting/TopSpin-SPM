@@ -53,45 +53,50 @@ public enum WorkoutAction {
     case pause
     
     case cancelWorkout
-    case healthKitAuth(Result<HealthKitClient.Action, Never>)
+    case healthKitAuth(didAuthorize: Bool)
     case healthKit(Result<HealthKitClient.Action, HealthKitClient.Failure>)
     
     // Timer
     case timerTicked
+    
+    case requestHealthAuth
 }
 
 public struct WorkoutEnvironment {
     public init(
         healthKitClient: HealthKitClient = .live,
+        healthKitDep: HealthKitDep = .live,
         mainQueue: AnySchedulerOf<DispatchQueue> = .main
     ) {
         self.healthKitClient = healthKitClient
+        self.healthKitDep = healthKitDep
         self.mainQueue = mainQueue
     }
     
     var healthKitClient: HealthKitClient = .live
+    var healthKitDep: HealthKitDep = .live
     var mainQueue: AnySchedulerOf<DispatchQueue> = .main
 }
 
 public let workoutReducer = WorkoutReducer
 { state, action, environment in
-    struct WorkoutId: Hashable {}
-    struct WorkoutCancellation: Hashable {}
-    struct TimerId: Hashable {}
-
+    enum HealthKitId {}
+    enum WorkoutId {}
+    enum TimerId {}
+    
     switch action {
     case .start:
-        return environment.healthKitClient.start(WorkoutId(), .tableTennis, .indoor)
+        return environment.healthKitClient.start(HealthKitId.self, .tableTennis, .indoor)
             .receive(on: environment.mainQueue)
             .catchToEffect(WorkoutAction.healthKit)
-            .cancellable(id: WorkoutCancellation())
+            .cancellable(id: WorkoutId.self)
         
     case .resume:
-        return environment.healthKitClient.resume(WorkoutId())
+        return environment.healthKitClient.resume(HealthKitId.self)
             .fireAndForget()
         
     case .pause:
-        return environment.healthKitClient.pause(WorkoutId())
+        return environment.healthKitClient.pause(HealthKitId.self)
             .fireAndForget()
         
     case .reset:
@@ -108,10 +113,10 @@ public let workoutReducer = WorkoutReducer
         state.workoutState = .notStarted
         
         return .merge(
-            environment.healthKitClient.reset(WorkoutId())
+            environment.healthKitClient.reset(HealthKitId.self)
                 .fireAndForget(),
-            .cancel(id: WorkoutCancellation()),
-            .cancel(id: TimerId())
+            .cancel(id: WorkoutId.self),
+            .cancel(id: TimerId.self)
         )
         
     case .timerTicked:
@@ -124,7 +129,7 @@ public let workoutReducer = WorkoutReducer
             
             let statistics = workoutBuilder.statistics(for: quantityType)
             guard let statistics = statistics else { return .none }
-                        
+            
             switch statistics.quantityType {
             case HKQuantityType.quantityType(forIdentifier: .heartRate):
                 let heartRateUnit = HKUnit.count().unitDivided(by: HKUnit.minute())
@@ -150,7 +155,7 @@ public let workoutReducer = WorkoutReducer
                 let value = statistics.sumQuantity()?.doubleValue(for: energyUnit)
                 state.activeCalories = Int(Double( round( 1 * value! ) / 1 ))
                 
-            
+                
             default:
                 return .none
             }
@@ -161,43 +166,40 @@ public let workoutReducer = WorkoutReducer
     case let .healthKit(.success(.workoutSessionDidChange(toState, fromState))):
         state.workoutState = toState
         
-        return state.workoutState == .running
-          ? Effect.timer(
-            id: TimerId(),
-            every: 1,
-            tolerance: .zero,
-            on: environment.mainQueue.animation(.interpolatingSpring(stiffness: 3000, damping: 40))
-          )
-          .map { _ in WorkoutAction.timerTicked }
-          : Effect.cancel(id: TimerId())
+        return .run { [workoutState = state.workoutState] send in
+            guard workoutState == .running else { return }
+            for await _ in  environment.mainQueue.timer(interval: .seconds(1)) {
+                await send(.timerTicked)
+            }
+        }
+        .cancellable(id: TimerId.self)
         
-    case let .healthKitAuth(.success(.authorizationDidChange(isAuthorized))):
+    case let .healthKitAuth(didAuthorize: isAuthorized):
         guard isAuthorized else { return .none }
-        return environment.healthKitClient.start(WorkoutId(), .tableTennis, .indoor)
+        
+        return environment.healthKitClient.start(HealthKitId.self, .tableTennis, .indoor)
             .receive(on: environment.mainQueue)
             .catchToEffect(WorkoutAction.healthKit)
-            .cancellable(id: WorkoutCancellation())
+            .cancellable(id: WorkoutId.self)
         
-    case .viewDidAppear:
-        if !state.viewInitialized {
-            return environment.healthKitClient.requestAuthorization(
-                WorkoutId(),
+    case .requestHealthAuth:
+        return .task {
+            try await environment.healthKitDep.requestAuthorization(
                 [HKQuantityType.workoutType()],
                 [
                     HKQuantityType.quantityType(forIdentifier: .heartRate)!,
                     HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned)!
                 ]
             )
-            .receive(on: environment.mainQueue)
-            .catchToEffect(WorkoutAction.healthKitAuth)
+
+            return .healthKitAuth(didAuthorize: true)
+        } catch: { _ in
+            return .healthKitAuth(didAuthorize: false)
         }
-        
-        state.viewInitialized = true
-        
-        return .none
+        .cancellable(id: WorkoutId.self)
         
     case .onDisappear:
-        return .cancel(id: WorkoutCancellation())
+        return .cancel(id: WorkoutId.self)
         
     default:
         return .none
@@ -237,14 +239,13 @@ public struct WorkoutView: View {
                 }
             )
         }
-        .onAppear {
-            viewStore.send(.viewDidAppear)
+        .task {
+            viewStore.send(.requestHealthAuth)
         }
     }
 }
 
 struct MatchWorkoutView: View {
-         
     var activeCalories: Int
     var elapsedSecondsString: String
     var heartRate: Int
@@ -254,7 +255,7 @@ struct MatchWorkoutView: View {
     var pauseLabel: String
     var pauseAction: () -> Void
     var cancelAction: () -> Void
-
+    
     var body: some View {
         ScrollView {
             HStack {
