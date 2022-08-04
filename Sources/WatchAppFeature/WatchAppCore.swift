@@ -48,7 +48,7 @@ public enum WatchAppAction: BindableAction {
 
 public struct WatchEnvironment {
     public init(
-        healthKitClient: HealthKitClient,
+        healthKitClient: HealthKitDep,
         mainQueue: AnySchedulerOf<DispatchQueue>,
         watchConnectivityClient: WatchConnectivityClient
     ) {
@@ -57,7 +57,7 @@ public struct WatchEnvironment {
         self.watchConnectivityClient = watchConnectivityClient
     }
     
-    var healthKitClient: HealthKitClient
+    var healthKitClient: HealthKitDep
     var mainQueue: AnySchedulerOf<DispatchQueue>
     var watchConnectivityClient: WatchConnectivityClient
 }
@@ -117,7 +117,7 @@ public let watchCoreReducer: WatchCoreReducer =
             action: /WatchAppAction.workout,
             environment: {
                 WorkoutEnvironment(
-                    healthKitClient: $0.healthKitClient,
+                    healthKitDep: $0.healthKitClient,
                     mainQueue: $0.mainQueue
                 )
             }

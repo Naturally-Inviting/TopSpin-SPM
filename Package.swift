@@ -362,5 +362,5 @@ package.targets.append(contentsOf: [
             "UserSettingsFeature",
             .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
         ]
-    )
+    ),
 ])

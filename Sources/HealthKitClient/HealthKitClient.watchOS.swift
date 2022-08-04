@@ -14,13 +14,22 @@ public struct HealthKitDep {
     
     public var requestAuthorization: @Sendable (Set<HKSampleType>, Set<HKObjectType>) async throws -> Void
     public var start: @Sendable (Any.Type, HKWorkoutActivityType, HKWorkoutSessionLocationType) async -> AsyncStream<Action>
+    
+    public var pause: (Any.Type) async -> Void
+    public var resume: (Any.Type) async -> Void
+    public var end: (Any.Type) async -> Void
+    public var reset: (Any.Type) async -> Void
 }
 
 public extension HealthKitDep {
     static var live: Self {
         Self(
             requestAuthorization: { try await HealthKitActor.shared.requestAuthorization(sharedSamples: $0, readSamples: $1) },
-            start: { await HealthKitActor.shared.start(id: $0, workoutType: $1, locationType: $2) }
+            start: { await HealthKitActor.shared.start(id: $0, workoutType: $1, locationType: $2) },
+            pause: { await HealthKitActor.shared.pause(id: $0) },
+            resume: { await HealthKitActor.shared.resume(id: $0) },
+            end: { await HealthKitActor.shared.end(id: $0) },
+            reset: { await HealthKitActor.shared.reset(id: $0) }
         )
     }
 }
@@ -52,10 +61,9 @@ final actor HealthKitActor: GlobalActor {
             self.continuation?.yield(.workoutSessionDidChange(toState, fromState))
             
             if toState == .ended {
-                builder.endCollection(withEnd: date) { success, error in
-                    self.builder.finishWorkout { workout, error in
-                        self.continuation?.finish() // Need this here?
-                    }
+                Task {
+                    try await builder.endCollection(at: date)
+                    try await builder.finishWorkout()
                 }
             }
         }
@@ -107,14 +115,37 @@ final actor HealthKitActor: GlobalActor {
         
         delegate.continuation = continuation
         dependencies[id] = delegate
+        
+        let date = Current.date()
+        delegate.session.startActivity(with: date)
+        try? await delegate.builder.beginCollection(at: date)
+
         return stream
+    }
+    
+    func pause(id: Any.Type) {
+        let id = ObjectIdentifier(id)
+        dependencies[id]?.session.pause()
+    }
+    
+    func end(id: Any.Type) {
+        let id = ObjectIdentifier(id)
+        dependencies[id]?.session.end()
+    }
+    
+    func resume(id: Any.Type) {
+        let id = ObjectIdentifier(id)
+        dependencies[id]?.session.resume()
+    }
+    
+    func reset(id: Any.Type) {
+        let id = ObjectIdentifier(id)
+        removeDependencies(id: id)
     }
     
     private func removeDependencies(id: ObjectIdentifier) {
         self.dependencies[id] = nil
     }
 }
-
-
 
 #endif

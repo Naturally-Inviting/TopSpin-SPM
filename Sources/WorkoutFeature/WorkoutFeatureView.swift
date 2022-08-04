@@ -54,26 +54,22 @@ public enum WorkoutAction {
     
     case cancelWorkout
     case healthKitAuth(didAuthorize: Bool)
-    case healthKit(Result<HealthKitClient.Action, HealthKitClient.Failure>)
-    
+    case healthKit(HealthKitDep.Action)
+    case requestHealthAuth
+
     // Timer
     case timerTicked
-    
-    case requestHealthAuth
 }
 
 public struct WorkoutEnvironment {
     public init(
-        healthKitClient: HealthKitClient = .live,
         healthKitDep: HealthKitDep = .live,
         mainQueue: AnySchedulerOf<DispatchQueue> = .main
     ) {
-        self.healthKitClient = healthKitClient
         self.healthKitDep = healthKitDep
         self.mainQueue = mainQueue
     }
     
-    var healthKitClient: HealthKitClient = .live
     var healthKitDep: HealthKitDep = .live
     var mainQueue: AnySchedulerOf<DispatchQueue> = .main
 }
@@ -81,23 +77,30 @@ public struct WorkoutEnvironment {
 public let workoutReducer = WorkoutReducer
 { state, action, environment in
     enum HealthKitId {}
-    enum WorkoutId {}
     enum TimerId {}
     
     switch action {
     case .start:
-        return environment.healthKitClient.start(HealthKitId.self, .tableTennis, .indoor)
-            .receive(on: environment.mainQueue)
-            .catchToEffect(WorkoutAction.healthKit)
-            .cancellable(id: WorkoutId.self)
-        
+        return .run { send in
+            let actions = await environment.healthKitDep.start(HealthKitId.self, .tableTennis, .indoor)
+            
+            await withThrowingTaskGroup(of: Void.self) { group in
+                for await action in actions {
+                    await send(.healthKit(action))
+                }
+            }
+        }
+        .cancellable(id: HealthKitId.self)
+
     case .resume:
-        return environment.healthKitClient.resume(HealthKitId.self)
-            .fireAndForget()
+        return .fireAndForget {
+            await environment.healthKitDep.resume(HealthKitId.self)
+        }
         
     case .pause:
-        return environment.healthKitClient.pause(HealthKitId.self)
-            .fireAndForget()
+        return .fireAndForget {
+            await environment.healthKitDep.pause(HealthKitId.self)
+        }
         
     case .reset:
         state.heartRate = 0
@@ -113,9 +116,10 @@ public let workoutReducer = WorkoutReducer
         state.workoutState = .notStarted
         
         return .merge(
-            environment.healthKitClient.reset(HealthKitId.self)
-                .fireAndForget(),
-            .cancel(id: WorkoutId.self),
+            .fireAndForget {
+                await environment.healthKitDep.reset(HealthKitId.self)
+            },
+            .cancel(id: HealthKitId.self),
             .cancel(id: TimerId.self)
         )
         
@@ -123,7 +127,7 @@ public let workoutReducer = WorkoutReducer
         state.elapsedSeconds += 1
         return .none
         
-    case let .healthKit(.success(.didCollectData(workoutBuilder, samples))):
+    case let .healthKit(.didCollectData(workoutBuilder, samples)):
         for type in samples {
             guard let quantityType = type as? HKQuantityType else { return .none }
             
@@ -155,7 +159,6 @@ public let workoutReducer = WorkoutReducer
                 let value = statistics.sumQuantity()?.doubleValue(for: energyUnit)
                 state.activeCalories = Int(Double( round( 1 * value! ) / 1 ))
                 
-                
             default:
                 return .none
             }
@@ -163,7 +166,7 @@ public let workoutReducer = WorkoutReducer
         
         return .none
         
-    case let .healthKit(.success(.workoutSessionDidChange(toState, fromState))):
+    case let .healthKit(.workoutSessionDidChange(toState, fromState)):
         state.workoutState = toState
         
         return .run { [workoutState = state.workoutState] send in
@@ -172,15 +175,11 @@ public let workoutReducer = WorkoutReducer
                 await send(.timerTicked)
             }
         }
-        .cancellable(id: TimerId.self)
+        .cancellable(id: TimerId.self, cancelInFlight: true)
         
     case let .healthKitAuth(didAuthorize: isAuthorized):
         guard isAuthorized else { return .none }
-        
-        return environment.healthKitClient.start(HealthKitId.self, .tableTennis, .indoor)
-            .receive(on: environment.mainQueue)
-            .catchToEffect(WorkoutAction.healthKit)
-            .cancellable(id: WorkoutId.self)
+        return Effect(value: .start)
         
     case .requestHealthAuth:
         return .task {
@@ -196,10 +195,10 @@ public let workoutReducer = WorkoutReducer
         } catch: { _ in
             return .healthKitAuth(didAuthorize: false)
         }
-        .cancellable(id: WorkoutId.self)
+        .cancellable(id: HealthKitId.self)
         
     case .onDisappear:
-        return .cancel(id: WorkoutId.self)
+        return .cancel(id: HealthKitId.self)
         
     default:
         return .none
